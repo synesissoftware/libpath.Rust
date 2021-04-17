@@ -1,0 +1,13 @@
+[package]
+authors = ["Matt Wilson <matt.wilson@synesis.com.au>"]
+edition = "2018"
+homepage = "https://github.com/synesissoftware/libpath.Rust"
+name = "libpath"
+readme = "README.md"
+version = "0.0.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+fastparse = "0.0"
