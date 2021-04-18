@@ -176,8 +176,6 @@ pub mod libpath {
                     }
                 }
 
-                eprintln!("path='{}'; cr={:?}", path, cr);
-                
                 (r_cl, cr)
             }
 
