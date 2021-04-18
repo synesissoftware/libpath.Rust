@@ -190,14 +190,41 @@ pub mod libpath {
 
                 debug_assert!(!path.is_empty());
 
-                if char_is_path_name_separator_(path.chars().nth(0).unwrap()) {
+                let mut ix = -1;
+                let mut tilde_0 = false;
+                for c in path.chars() {
 
-                    return (
+                    ix += 1;
 
-                        Classification::Relative,
-                        PoSl::new(0, 1),
-                        PoSl::new(1, path.len() - 1),
-                    )
+                    if '~' == c && 0 == ix {
+
+                        tilde_0 = true;
+
+                        continue;
+                    }
+
+                    if char_is_path_name_separator_(c) {
+
+                        if 0 == ix {
+
+                            return (
+                                Classification::SlashRooted,
+                                PoSl::empty(),
+                                PoSl::new(0, path.len()),
+                            );
+                        }
+
+                        if 1 == ix {
+
+                            return (
+                                Classification::HomeRooted,
+                                PoSl::new(0, 1),
+                                PoSl::new(1, path.len() - 1),
+                            );
+                        }
+                    }
+
+                    break;
                 }
 
                 return (
@@ -413,14 +440,41 @@ pub mod libpath {
 
                 debug_assert!(!path.is_empty());
 
-                if char_is_path_name_separator_(path.chars().nth(0).unwrap()) {
+                let mut ix = -1;
+                let mut tilde_0 = false;
+                for c in path.chars() {
 
-                    return (
+                    ix += 1;
 
-                        Classification::Relative,
-                        PoSl::new(0, 1),
-                        PoSl::new(1, path.len() - 1),
-                    )
+                    if '~' == c && 0 == ix {
+
+                        tilde_0 = true;
+
+                        continue;
+                    }
+
+                    if char_is_path_name_separator_(c) {
+
+                        if 0 == ix {
+
+                            return (
+                                Classification::SlashRooted,
+                                PoSl::empty(),
+                                PoSl::new(0, path.len()),
+                            );
+                        }
+
+                        if 1 == ix {
+
+                            return (
+                                Classification::HomeRooted,
+                                PoSl::new(0, 1),
+                                PoSl::new(1, path.len() - 1),
+                            );
+                        }
+                    }
+
+                    break;
                 }
 
                 return (
@@ -1355,13 +1409,13 @@ mod tests {
         let path = "/dir/sub-dir/file.ext";
         let (cl, cr) = path_classify(path, 0);
 
-        assert_eq!(Classification::Relative, cl);
+        assert_eq!(Classification::SlashRooted, cl);
 
         assert_eq!("/dir/sub-dir/file.ext", cr.Input.substring_of(path));
         assert_eq!("", cr.Prefix.substring_of(path));
         assert_eq!("/dir/sub-dir/", cr.Location.substring_of(path));
-        assert_eq!("/", cr.Root.substring_of(path));
-        assert_eq!("dir/sub-dir/", cr.Directory.substring_of(path));
+        assert_eq!("", cr.Root.substring_of(path));
+        assert_eq!("/dir/sub-dir/", cr.Directory.substring_of(path));
         assert_eq!("file.ext", cr.Entry.substring_of(path));
         assert_eq!("file", cr.Stem.substring_of(path));
         assert_eq!(".ext", cr.Extension.substring_of(path));
@@ -1371,9 +1425,9 @@ mod tests {
         // assert_eq!(PoSl::new(0, 21), cr.FullPath);
         assert_eq!(PoSl::empty(), cr.Prefix);
         assert_eq!(PoSl::new(0, 13), cr.Location);
-        assert_eq!(PoSl::new(0, 1), cr.Root);
-        assert_eq!(PoSl::new(1, 12), cr.Directory);
-        assert_eq!(2, cr.NumDirectoryParts);
+        assert_eq!(PoSl::empty(), cr.Root);
+        assert_eq!(PoSl::new(0, 13), cr.Directory);
+        assert_eq!(3, cr.NumDirectoryParts);
         assert_eq!(0, cr.NumDotsDirectoryParts);
         assert_eq!(PoSl::new(13, 8), cr.Entry);
         assert_eq!(PoSl::new(13, 4), cr.Stem);
@@ -1392,13 +1446,13 @@ mod tests {
         let path = "/dir/sub-dir/file.ext";
         let (cl, cr) = path_classify(path, 0);
 
-        assert_eq!(Classification::Relative, cl);
+        assert_eq!(Classification::SlashRooted, cl);
 
         assert_eq!("/dir/sub-dir/file.ext", cr.Input.substring_of(path));
         assert_eq!("", cr.Prefix.substring_of(path));
         assert_eq!("/dir/sub-dir/", cr.Location.substring_of(path));
-        assert_eq!("/", cr.Root.substring_of(path));
-        assert_eq!("dir/sub-dir/", cr.Directory.substring_of(path));
+        assert_eq!("", cr.Root.substring_of(path));
+        assert_eq!("/dir/sub-dir/", cr.Directory.substring_of(path));
         assert_eq!("file.ext", cr.Entry.substring_of(path));
         assert_eq!("file", cr.Stem.substring_of(path));
         assert_eq!(".ext", cr.Extension.substring_of(path));
@@ -1408,13 +1462,87 @@ mod tests {
         // assert_eq!(PoSl::new(0, 21), cr.FullPath);
         assert_eq!(PoSl::empty(), cr.Prefix);
         assert_eq!(PoSl::new(0, 13), cr.Location);
-        assert_eq!(PoSl::new(0, 1), cr.Root);
-        assert_eq!(PoSl::new(1, 12), cr.Directory);
-        assert_eq!(2, cr.NumDirectoryParts);
+        assert_eq!(PoSl::empty(), cr.Root);
+        assert_eq!(PoSl::new(0, 13), cr.Directory);
+        assert_eq!(3, cr.NumDirectoryParts);
         assert_eq!(0, cr.NumDotsDirectoryParts);
         assert_eq!(PoSl::new(13, 8), cr.Entry);
         assert_eq!(PoSl::new(13, 4), cr.Stem);
         assert_eq!(PoSl::new(17, 4), cr.Extension);
         assert!(cr.FirstInvalid.is_empty());
+    }
+
+    #[test]
+    fn unix_path_classify_home_path() {
+
+        use libpath::util::unix::{
+
+            *,
+        };
+
+        let path = "~/dir/sub-dir/file.ext";
+        let (cl, cr) = path_classify(path, 0);
+
+        assert_eq!(Classification::HomeRooted, cl);
+
+        assert_ne!(ClassificationResult::empty(), cr);
+        assert_eq!(PoSl::new(0, 22), cr.Input);
+        // assert_eq!(PoSl::new(0, 22), cr.FullPath);
+        assert_eq!(PoSl::empty(), cr.Prefix);
+        assert_eq!(PoSl::new(0, 14), cr.Location);
+        assert_eq!(PoSl::new(0, 1), cr.Root);
+        assert_eq!(PoSl::new(1, 13), cr.Directory);
+        assert_eq!(3, cr.NumDirectoryParts);
+        assert_eq!(0, cr.NumDotsDirectoryParts);
+        assert_eq!(PoSl::new(14, 8), cr.Entry);
+        assert_eq!(PoSl::new(14, 4), cr.Stem);
+        assert_eq!(PoSl::new(18, 4), cr.Extension);
+        assert!(cr.FirstInvalid.is_empty());
+
+        assert_eq!("~/dir/sub-dir/file.ext", cr.Input.substring_of(path));
+        assert_eq!("", cr.Prefix.substring_of(path));
+        assert_eq!("~/dir/sub-dir/", cr.Location.substring_of(path));
+        assert_eq!("~", cr.Root.substring_of(path));
+        assert_eq!("/dir/sub-dir/", cr.Directory.substring_of(path));
+        assert_eq!("file.ext", cr.Entry.substring_of(path));
+        assert_eq!("file", cr.Stem.substring_of(path));
+        assert_eq!(".ext", cr.Extension.substring_of(path));
+    }
+
+    #[test]
+    fn windows_path_classify_home_path() {
+
+        use libpath::util::windows::{
+
+            *,
+        };
+
+        let path = "~/dir/sub-dir/file.ext";
+        let (cl, cr) = path_classify(path, 0);
+
+        assert_eq!(Classification::HomeRooted, cl);
+
+        assert_ne!(ClassificationResult::empty(), cr);
+        assert_eq!(PoSl::new(0, 22), cr.Input);
+        // assert_eq!(PoSl::new(0, 22), cr.FullPath);
+        assert_eq!(PoSl::empty(), cr.Prefix);
+        assert_eq!(PoSl::new(0, 14), cr.Location);
+        assert_eq!(PoSl::new(0, 1), cr.Root);
+        assert_eq!(PoSl::new(1, 13), cr.Directory);
+        assert_eq!(3, cr.NumDirectoryParts);
+        assert_eq!(0, cr.NumDotsDirectoryParts);
+        assert_eq!(PoSl::new(14, 8), cr.Entry);
+        assert_eq!(PoSl::new(14, 4), cr.Stem);
+        assert_eq!(PoSl::new(18, 4), cr.Extension);
+        assert!(cr.FirstInvalid.is_empty());
+
+        assert_eq!("~/dir/sub-dir/file.ext", cr.Input.substring_of(path));
+        assert_eq!("", cr.Prefix.substring_of(path));
+        assert_eq!("~/dir/sub-dir/", cr.Location.substring_of(path));
+        assert_eq!("~", cr.Root.substring_of(path));
+        assert_eq!("/dir/sub-dir/", cr.Directory.substring_of(path));
+        assert_eq!("file.ext", cr.Entry.substring_of(path));
+        assert_eq!("file", cr.Stem.substring_of(path));
+        assert_eq!(".ext", cr.Extension.substring_of(path));
     }
 }
