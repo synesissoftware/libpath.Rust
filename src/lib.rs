@@ -52,9 +52,9 @@ pub mod libpath {
 
         pub mod unix {
 
-            pub const IGNORE_SLASH_RUNS : i32       =   0x00000001;
-            pub const IGNORE_INVALID_CHARS : i32    =   0x00000002;
-            pub const RECOGNISE_SET_TILE_HOME : i32 =   0x00000004;
+            pub const IGNORE_SLASH_RUNS : i32           =   0x00000001;
+            pub const IGNORE_INVALID_CHARS : i32        =   0x00000002;
+            pub const RECOGNISE_SET_TILDE_HOME : i32    =   0x00000004;
 
             #[derive(Debug, PartialEq)]
             pub enum Classification {
@@ -275,7 +275,7 @@ pub mod libpath {
 
             pub const IGNORE_SLASH_RUNS : i32                   =   0x00000001;
             pub const IGNORE_INVALID_CHARS : i32                =   0x00000002;
-            pub const RECOGNISE_SET_TILE_HOME : i32             =   0x00000004;
+            pub const RECOGNISE_SET_TILDE_HOME : i32            =   0x00000004;
             pub const IGNORE_INVALID_CHARS_IN_LONG_PATH : i32   =   0x00000002;
 
             #[derive(Debug, PartialEq)]
@@ -556,7 +556,7 @@ mod tests {
         let flag_max    =   0
                         |   IGNORE_SLASH_RUNS
                         |   IGNORE_INVALID_CHARS
-                        |   RECOGNISE_SET_TILE_HOME
+                        |   RECOGNISE_SET_TILDE_HOME
                         ;
 
         for flags in 0..=flag_max {
@@ -580,7 +580,7 @@ mod tests {
         let flag_max    =   0
                         |   IGNORE_SLASH_RUNS
                         |   IGNORE_INVALID_CHARS
-                        |   RECOGNISE_SET_TILE_HOME
+                        |   RECOGNISE_SET_TILDE_HOME
                         |   IGNORE_INVALID_CHARS_IN_LONG_PATH
                         ;
 
