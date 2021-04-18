@@ -479,11 +479,17 @@ pub mod libpath {
 
                     if ix == 2 {
 
-                        if is_drive_2 && char_is_path_name_separator_(c) {
+                        if is_drive_2 {
 
                             return (
 
-                                Classification::DriveLetterRooted,
+                                if char_is_path_name_separator_(c) {
+
+                                    Classification::DriveLetterRooted
+                                } else {
+
+                                    Classification::DriveLetterRelative
+                                },
                                 PoSl::new(0, 2),
                                 PoSl::new(2, path.len() - 2),
                             );
@@ -1568,6 +1574,73 @@ mod tests {
             assert_eq!("C:\\dir\\sub-dir\\", cr.Location.substring_of(path));
             assert_eq!("C:", cr.Root.substring_of(path));
             assert_eq!("\\dir\\sub-dir\\", cr.Directory.substring_of(path));
+            assert_eq!("file.ext", cr.Entry.substring_of(path));
+            assert_eq!("file", cr.Stem.substring_of(path));
+            assert_eq!(".ext", cr.Extension.substring_of(path));
+        }
+    }
+
+    #[test]
+    fn windows_path_classify_driverelative_path() {
+
+        use libpath::util::windows::{
+
+            *,
+        };
+
+        {
+            let path = "C:dir/sub-dir/file.ext";
+            let (cl, cr) = path_classify(path, 0);
+
+            assert_eq!(Classification::DriveLetterRelative, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 22), cr.Input);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::new(0, 14), cr.Location);
+            assert_eq!(PoSl::new(0, 2), cr.Root);
+            assert_eq!(PoSl::new(2, 12), cr.Directory);
+            assert_eq!(2, cr.NumDirectoryParts);
+            assert_eq!(0, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(14, 8), cr.Entry);
+            assert_eq!(PoSl::new(14, 4), cr.Stem);
+            assert_eq!(PoSl::new(18, 4), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+
+            assert_eq!("C:dir/sub-dir/file.ext", cr.Input.substring_of(path));
+            assert_eq!("", cr.Prefix.substring_of(path));
+            assert_eq!("C:dir/sub-dir/", cr.Location.substring_of(path));
+            assert_eq!("C:", cr.Root.substring_of(path));
+            assert_eq!("dir/sub-dir/", cr.Directory.substring_of(path));
+            assert_eq!("file.ext", cr.Entry.substring_of(path));
+            assert_eq!("file", cr.Stem.substring_of(path));
+            assert_eq!(".ext", cr.Extension.substring_of(path));
+        }
+
+        {
+            let path = "C:dir\\sub-dir\\file.ext";
+            let (cl, cr) = path_classify(path, 0);
+
+            assert_eq!(Classification::DriveLetterRelative, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 22), cr.Input);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::new(0, 14), cr.Location);
+            assert_eq!(PoSl::new(0, 2), cr.Root);
+            assert_eq!(PoSl::new(2, 12), cr.Directory);
+            assert_eq!(2, cr.NumDirectoryParts);
+            assert_eq!(0, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(14, 8), cr.Entry);
+            assert_eq!(PoSl::new(14, 4), cr.Stem);
+            assert_eq!(PoSl::new(18, 4), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+
+            assert_eq!("C:dir\\sub-dir\\file.ext", cr.Input.substring_of(path));
+            assert_eq!("", cr.Prefix.substring_of(path));
+            assert_eq!("C:dir\\sub-dir\\", cr.Location.substring_of(path));
+            assert_eq!("C:", cr.Root.substring_of(path));
+            assert_eq!("dir\\sub-dir\\", cr.Directory.substring_of(path));
             assert_eq!("file.ext", cr.Entry.substring_of(path));
             assert_eq!("file", cr.Stem.substring_of(path));
             assert_eq!(".ext", cr.Extension.substring_of(path));
