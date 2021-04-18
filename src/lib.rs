@@ -111,7 +111,9 @@ pub mod libpath {
 
                         cr.Directory = PoSl::new(volume.len(), dir_len);
 
-                        cr.NumDirectoryParts = count_parts_(cr.Directory.substring_of(path), parse_flags);
+                        let (num_parts, num_dir_parts) = count_parts_(cr.Directory.substring_of(path), parse_flags);
+                        cr.NumDirectoryParts = num_parts;
+                        cr.NumDotsDirectoryParts = num_dir_parts;
 
                         cr.Entry = PoSl::new(volume.len() + dir_len, path_vol_stripped.len() - dir_len);
                     }
@@ -245,28 +247,61 @@ pub mod libpath {
                 }
             }
 
-            fn count_parts_(s : &str, flags : i32) -> usize {
+            fn count_parts_(
+                s : &str,
+                parse_flags : i32,
+            ) -> (
+                usize,  // number of parts
+                usize,  // number of dots parts
+            )
+            {
+                // This function counts the number of directory parts and the
+                // number of those that are dots directories
 
-                let mut n = 0usize;
+                let mut np = 0usize;
+                let mut nd = 0usize;
 
                 let mut prev = 'X';
 
+                let mut num_dots = 0;
+
+                let mut ix = -1;
+
                 for c in s.chars() {
 
+                    ix += 1;
+
                     if char_is_path_name_separator_(c) {
+
+                        match num_dots {
+
+                            1 | 2 => nd += 1,
+                            _ => (),
+                        }
 
                         if char_is_path_name_separator_(prev) {
 
                         } else {
 
-                            n += 1;
+                            np += 1;
+                        }
+
+                        num_dots = 0;
+                    } else
+                    {
+                        if '.' == c {
+
+                            num_dots += 1;
+                        } else {
+
+                            num_dots += 100;
                         }
                     }
 
                     prev = c;
                 }
 
-                n
+                (np, nd)
             }
         }
     }
@@ -510,6 +545,66 @@ mod tests {
             assert_eq!(PoSl::new(10, 0), cr.Entry);
             assert_eq!(PoSl::new(10, 0), cr.Stem);
             assert_eq!(PoSl::new(10, 0), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+        }
+
+        {
+            let (cl, cr) = libpath::util::windows::path_classify("dir1/../", 0);
+
+            assert_eq!(Classification::Relative, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 8), cr.Input);
+            // assert_eq!(PoSl::new(0, 10), cr.FullPath);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::empty(), cr.Location);
+            assert_eq!(PoSl::empty(), cr.Root);
+            assert_eq!(PoSl::new(0, 8), cr.Directory);
+            assert_eq!(2, cr.NumDirectoryParts);
+            assert_eq!(1, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(8, 0), cr.Entry);
+            assert_eq!(PoSl::new(8, 0), cr.Stem);
+            assert_eq!(PoSl::new(8, 0), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+        }
+
+        {
+            let (cl, cr) = libpath::util::windows::path_classify("../dir1/", 0);
+
+            assert_eq!(Classification::Relative, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 8), cr.Input);
+            // assert_eq!(PoSl::new(0, 10), cr.FullPath);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::empty(), cr.Location);
+            assert_eq!(PoSl::empty(), cr.Root);
+            assert_eq!(PoSl::new(0, 8), cr.Directory);
+            assert_eq!(2, cr.NumDirectoryParts);
+            assert_eq!(1, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(8, 0), cr.Entry);
+            assert_eq!(PoSl::new(8, 0), cr.Stem);
+            assert_eq!(PoSl::new(8, 0), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+        }
+
+        {
+            let (cl, cr) = libpath::util::windows::path_classify(".././", 0);
+
+            assert_eq!(Classification::Relative, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 5), cr.Input);
+            // assert_eq!(PoSl::new(0, 10), cr.FullPath);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::empty(), cr.Location);
+            assert_eq!(PoSl::empty(), cr.Root);
+            assert_eq!(PoSl::new(0, 5), cr.Directory);
+            assert_eq!(2, cr.NumDirectoryParts);
+            assert_eq!(2, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(5, 0), cr.Entry);
+            assert_eq!(PoSl::new(5, 0), cr.Stem);
+            assert_eq!(PoSl::new(5, 0), cr.Extension);
             assert!(cr.FirstInvalid.is_empty());
         }
 
