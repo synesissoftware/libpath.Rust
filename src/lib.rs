@@ -117,7 +117,7 @@ pub mod libpath {
                     }
                     None => {
 
-                        // if there's no slash, then the while (stripped) path is the entry
+                        // if there's no slash, then the whole (stripped) path is the entry
 
                         cr.Entry = PoSl::new(root.len(), path_root_stripped.len());
                     }
@@ -367,7 +367,7 @@ pub mod libpath {
                     }
                     None => {
 
-                        // if there's no slash, then the while (stripped) path is the entry
+                        // if there's no slash, then the whole (stripped) path is the entry
 
                         cr.Entry = PoSl::new(root.len(), path_root_stripped.len());
                     }
