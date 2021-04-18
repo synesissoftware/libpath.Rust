@@ -14,7 +14,7 @@ pub mod libpath {
             pub struct ClassificationResult {
 
                 pub Input                   :   PoSl,
-                pub FullPath                :   PoSl,
+                pub FullPath                :   PoSl,   // not used
                 pub Prefix                  :   PoSl,
                 pub Location                :   PoSl,
                 pub Root                    :   PoSl,
@@ -663,7 +663,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 8), cr.Input);
-            // assert_eq!(PoSl::new(0, 8), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::empty(), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -692,7 +691,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 4), cr.Input);
-            // assert_eq!(PoSl::new(0, 4), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::empty(), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -712,7 +710,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 4), cr.Input);
-            // assert_eq!(PoSl::new(0, 4), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::empty(), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -732,7 +729,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 3), cr.Input);
-            // assert_eq!(PoSl::new(0, 3), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::empty(), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -752,7 +748,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 3), cr.Input);
-            // assert_eq!(PoSl::new(0, 3), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::empty(), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -772,7 +767,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 3), cr.Input);
-            // assert_eq!(PoSl::new(0, 3), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::empty(), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -802,7 +796,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 8), cr.Input);
-            // assert_eq!(PoSl::new(0, 8), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::empty(), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -831,7 +824,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 4), cr.Input);
-            // assert_eq!(PoSl::new(0, 4), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::empty(), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -851,7 +843,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 4), cr.Input);
-            // assert_eq!(PoSl::new(0, 4), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::empty(), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -871,7 +862,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 3), cr.Input);
-            // assert_eq!(PoSl::new(0, 3), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::empty(), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -891,7 +881,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 3), cr.Input);
-            // assert_eq!(PoSl::new(0, 3), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::empty(), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -911,7 +900,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 3), cr.Input);
-            // assert_eq!(PoSl::new(0, 3), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::empty(), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -940,7 +928,6 @@ mod tests {
 
         assert_ne!(ClassificationResult::empty(), cr);
         assert_eq!(PoSl::new(0, 12), cr.Input);
-        // assert_eq!(PoSl::new(0, 12), cr.FullPath);
         assert_eq!(PoSl::empty(), cr.Prefix);
         assert_eq!(PoSl::new(0, 4), cr.Location);
         assert_eq!(PoSl::empty(), cr.Root);
@@ -977,7 +964,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 12), cr.Input);
-            // assert_eq!(PoSl::new(0, 12), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 4), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -997,7 +983,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 12), cr.Input);
-            // assert_eq!(PoSl::new(0, 12), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 4), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1027,7 +1012,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 4), cr.Input);
-            // assert_eq!(PoSl::new(0, 4), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 4), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1056,7 +1040,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 10), cr.Input);
-            // assert_eq!(PoSl::new(0, 10), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 10), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1076,7 +1059,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 8), cr.Input);
-            // assert_eq!(PoSl::new(0, 10), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 8), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1096,7 +1078,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 8), cr.Input);
-            // assert_eq!(PoSl::new(0, 10), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 8), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1116,7 +1097,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 5), cr.Input);
-            // assert_eq!(PoSl::new(0, 10), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 5), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1146,7 +1126,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 4), cr.Input);
-            // assert_eq!(PoSl::new(0, 4), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 4), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1175,7 +1154,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 10), cr.Input);
-            // assert_eq!(PoSl::new(0, 10), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 10), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1195,7 +1173,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 8), cr.Input);
-            // assert_eq!(PoSl::new(0, 10), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 8), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1215,7 +1192,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 8), cr.Input);
-            // assert_eq!(PoSl::new(0, 10), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 8), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1235,7 +1211,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 5), cr.Input);
-            // assert_eq!(PoSl::new(0, 10), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 5), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1255,7 +1230,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 4), cr.Input);
-            // assert_eq!(PoSl::new(0, 4), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 4), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1275,7 +1249,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 10), cr.Input);
-            // assert_eq!(PoSl::new(0, 10), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 10), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1303,7 +1276,6 @@ mod tests {
 
         assert_ne!(ClassificationResult::empty(), cr);
         assert_eq!(PoSl::new(0, 1), cr.Input);
-        // assert_eq!(PoSl::new(0, 1), cr.FullPath);
         assert_eq!(PoSl::empty(), cr.Prefix);
         assert_eq!(PoSl::empty(), cr.Location);
         assert_eq!(PoSl::empty(), cr.Root);
@@ -1330,7 +1302,6 @@ mod tests {
 
         assert_ne!(ClassificationResult::empty(), cr);
         assert_eq!(PoSl::new(0, 1), cr.Input);
-        // assert_eq!(PoSl::new(0, 1), cr.FullPath);
         assert_eq!(PoSl::empty(), cr.Prefix);
         assert_eq!(PoSl::empty(), cr.Location);
         assert_eq!(PoSl::empty(), cr.Root);
@@ -1357,7 +1328,6 @@ mod tests {
 
         assert_ne!(ClassificationResult::empty(), cr);
         assert_eq!(PoSl::new(0, 2), cr.Input);
-        // assert_eq!(PoSl::new(0, 2), cr.FullPath);
         assert_eq!(PoSl::empty(), cr.Prefix);
         assert_eq!(PoSl::empty(), cr.Location);
         assert_eq!(PoSl::empty(), cr.Root);
@@ -1384,7 +1354,6 @@ mod tests {
 
         assert_ne!(ClassificationResult::empty(), cr);
         assert_eq!(PoSl::new(0, 2), cr.Input);
-        // assert_eq!(PoSl::new(0, 2), cr.FullPath);
         assert_eq!(PoSl::empty(), cr.Prefix);
         assert_eq!(PoSl::empty(), cr.Location);
         assert_eq!(PoSl::empty(), cr.Root);
@@ -1412,7 +1381,6 @@ mod tests {
 
         assert_ne!(ClassificationResult::empty(), cr);
         assert_eq!(PoSl::new(0, 21), cr.Input);
-        // assert_eq!(PoSl::new(0, 21), cr.FullPath);
         assert_eq!(PoSl::empty(), cr.Prefix);
         assert_eq!(PoSl::new(0, 13), cr.Location);
         assert_eq!(PoSl::empty(), cr.Root);
@@ -1450,7 +1418,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 21), cr.Input);
-            // assert_eq!(PoSl::new(0, 21), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 13), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1480,7 +1447,6 @@ mod tests {
 
             assert_ne!(ClassificationResult::empty(), cr);
             assert_eq!(PoSl::new(0, 21), cr.Input);
-            // assert_eq!(PoSl::new(0, 21), cr.FullPath);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 13), cr.Location);
             assert_eq!(PoSl::empty(), cr.Root);
@@ -1518,7 +1484,6 @@ mod tests {
 
         assert_ne!(ClassificationResult::empty(), cr);
         assert_eq!(PoSl::new(0, 22), cr.Input);
-        // assert_eq!(PoSl::new(0, 22), cr.FullPath);
         assert_eq!(PoSl::empty(), cr.Prefix);
         assert_eq!(PoSl::new(0, 14), cr.Location);
         assert_eq!(PoSl::new(0, 1), cr.Root);
@@ -1555,7 +1520,6 @@ mod tests {
 
         assert_ne!(ClassificationResult::empty(), cr);
         assert_eq!(PoSl::new(0, 22), cr.Input);
-        // assert_eq!(PoSl::new(0, 22), cr.FullPath);
         assert_eq!(PoSl::empty(), cr.Prefix);
         assert_eq!(PoSl::new(0, 14), cr.Location);
         assert_eq!(PoSl::new(0, 1), cr.Root);
