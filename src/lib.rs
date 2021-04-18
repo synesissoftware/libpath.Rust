@@ -117,6 +117,8 @@ pub mod libpath {
                     }
                     None => {
 
+                        cr.Directory = PoSl::new(root.len(), 0);
+
                         // if there's no slash, then the whole (stripped) path is the entry
 
                         cr.Entry = PoSl::new(root.len(), path_root_stripped.len());
@@ -224,6 +226,16 @@ pub mod libpath {
                     }
 
                     break;
+                }
+
+                if 0 == ix && tilde_0 {
+
+                    return (
+
+                        Classification::HomeRooted,
+                        PoSl::new(0, 1),
+                        PoSl::new(1, path.len() - 1),
+                    )
                 }
 
                 return (
@@ -367,6 +379,8 @@ pub mod libpath {
                     }
                     None => {
 
+                        cr.Directory = PoSl::new(root.len(), 0);
+
                         // if there's no slash, then the whole (stripped) path is the entry
 
                         cr.Entry = PoSl::new(root.len(), path_root_stripped.len());
@@ -509,6 +523,16 @@ pub mod libpath {
 
                         break;
                     }
+                }
+
+                if 0 == ix && '~' == c0 {
+
+                    return (
+
+                        Classification::HomeRooted,
+                        PoSl::new(0, 1),
+                        PoSl::new(1, path.len() - 1),
+                    )
                 }
 
                 return (
@@ -1717,5 +1741,77 @@ mod tests {
         assert_eq!("file.ext", cr.Entry.substring_of(path));
         assert_eq!("file", cr.Stem.substring_of(path));
         assert_eq!(".ext", cr.Extension.substring_of(path));
+    }
+
+    #[test]
+    fn unix_path_classify_home_only() {
+
+        use libpath::util::unix::{
+
+            *,
+        };
+
+        let path = "~";
+        let (cl, cr) = path_classify(path, 0);
+
+        assert_eq!(Classification::HomeRooted, cl);
+
+        assert_ne!(ClassificationResult::empty(), cr);
+        assert_eq!(PoSl::new(0, 1), cr.Input);
+        assert_eq!(PoSl::empty(), cr.Prefix);
+        assert_eq!(PoSl::new(0, 1), cr.Location);
+        assert_eq!(PoSl::new(0, 1), cr.Root);
+        assert_eq!(PoSl::new(1, 0), cr.Directory);
+        assert_eq!(0, cr.NumDirectoryParts);
+        assert_eq!(0, cr.NumDotsDirectoryParts);
+        assert_eq!(PoSl::new(1, 0), cr.Entry);
+        assert_eq!(PoSl::new(1, 0), cr.Stem);
+        assert_eq!(PoSl::new(1, 0), cr.Extension);
+        assert!(cr.FirstInvalid.is_empty());
+
+        assert_eq!("~", cr.Input.substring_of(path));
+        assert_eq!("", cr.Prefix.substring_of(path));
+        assert_eq!("~", cr.Location.substring_of(path));
+        assert_eq!("~", cr.Root.substring_of(path));
+        assert_eq!("", cr.Directory.substring_of(path));
+        assert_eq!("", cr.Entry.substring_of(path));
+        assert_eq!("", cr.Stem.substring_of(path));
+        assert_eq!("", cr.Extension.substring_of(path));
+    }
+
+    #[test]
+    fn windows_path_classify_home_only() {
+
+        use libpath::util::windows::{
+
+            *,
+        };
+
+        let path = "~";
+        let (cl, cr) = path_classify(path, 0);
+
+        assert_eq!(Classification::HomeRooted, cl);
+
+        assert_ne!(ClassificationResult::empty(), cr);
+        assert_eq!(PoSl::new(0, 1), cr.Input);
+        assert_eq!(PoSl::empty(), cr.Prefix);
+        assert_eq!(PoSl::new(0, 1), cr.Location);
+        assert_eq!(PoSl::new(0, 1), cr.Root);
+        assert_eq!(PoSl::new(1, 0), cr.Directory);
+        assert_eq!(0, cr.NumDirectoryParts);
+        assert_eq!(0, cr.NumDotsDirectoryParts);
+        assert_eq!(PoSl::new(1, 0), cr.Entry);
+        assert_eq!(PoSl::new(1, 0), cr.Stem);
+        assert_eq!(PoSl::new(1, 0), cr.Extension);
+        assert!(cr.FirstInvalid.is_empty());
+
+        assert_eq!("~", cr.Input.substring_of(path));
+        assert_eq!("", cr.Prefix.substring_of(path));
+        assert_eq!("~", cr.Location.substring_of(path));
+        assert_eq!("~", cr.Root.substring_of(path));
+        assert_eq!("", cr.Directory.substring_of(path));
+        assert_eq!("", cr.Entry.substring_of(path));
+        assert_eq!("", cr.Stem.substring_of(path));
+        assert_eq!("", cr.Extension.substring_of(path));
     }
 }
