@@ -1,13 +1,42 @@
+
+# ##########################################################
+# Package
+
 [package]
-authors = ["Matt Wilson <matt.wilson@synesis.com.au>"]
-edition = "2018"
+
+authors = [
+	"Matt Wilson <matthew@synesis.com.au>",
+]
+description = "Path parsing library (for Rust)"
+edition = "2021"
 homepage = "https://github.com/synesissoftware/libpath.Rust"
+license = "BSD-3-Clause"
 name = "libpath"
 readme = "README.md"
-version = "0.0.0"
+version = "0.0.1"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+# ##########################################################
+# Targets
+
+
+# ##########################################################
+# Features
+
+[features]
+
+
+# ##########################################################
+# Dependencies
 
 [dependencies]
 
-fastparse = "0.0"
+fastparse = { version = "~0.0", default-features = false, features = [
+] }
+
+
+[dev-dependencies]
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
