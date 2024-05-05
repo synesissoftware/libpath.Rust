@@ -9,7 +9,7 @@ authors = [
 ]
 description = "Path parsing library (for Rust)"
 edition = "2021"
-homepage = "https://github.com/synesissoftware/libpath.Rust"
+repository = "https://github.com/synesissoftware/libpath.Rust"
 license = "BSD-3-Clause"
 name = "libpath"
 readme = "README.md"
