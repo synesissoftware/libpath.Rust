@@ -5,7 +5,7 @@ Path parsing library, for Rust
 
 ## Introduction
 
-T.B.C.
+**libpath** is a small Rust library that provides file-system path parsing and comparison, for platform-dependent - **Unix** and **Windows** - and platform-independent path manipulation. It is intended to be useful for application-level programming as well as a basis for other libraries.
 
 
 ## Table of Contents <!-- omit in toc -->
