@@ -5,7 +5,7 @@ Path parsing library, for Rust
 
 ## Introduction
 
-T.B.C.
+**libpath** is a small Rust library that provides file-system path parsing and comparison, for platform-dependent - **Unix** and **Windows** - and platform-independent path manipulation. It is intended to serve as a solid basis for other file-system libraries as well as being useful for application-level programming.
 
 
 ## Table of Contents <!-- omit in toc -->
@@ -41,6 +41,7 @@ T.B.C.
 
 T.B.C.
 
+
 ### Where to get help
 
 [GitHub Page](https://github.com/synesissoftware/libpath.Rust "GitHub Page")
@@ -53,12 +54,15 @@ Defect reports, feature requests, and pull requests are welcome on https://githu
 
 ### Dependencies
 
-* [**FastParse**](https://github.com/synesissoftware/FastParse.Rust);
+* [**FastParse.Rust**](https://github.com/synesissoftware/FastParse.Rust);
 
 
 ### Related projects
 
-T.B.C.
+* [**libpath**](https://github.com/synesissoftware/libpath);
+* [**libpath.Go**](https://github.com/synesissoftware/libpath.Go);
+* [**libpath.Ruby**](https://github.com/synesissoftware/libpath.Ruby);
+* [**recls.Rust**](https://github.com/synesissoftware/recls.Rust);
 
 
 ### License

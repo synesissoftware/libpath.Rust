@@ -4,7 +4,7 @@
  * Purpose: Primary implementation file for libpath.Rust.
  *
  * Created: 16th April 2021
- * Updated: 29th March 2024
+ * Updated: 24th August 2024
  *
  * Home:    http://stlsoft.org/
  *
@@ -52,16 +52,30 @@ pub mod libpath {
             #[derive(Debug)]
             #[derive(PartialEq, Eq)]
             pub struct ClassificationResult {
+                /// The input string's position.
                 pub Input :                 PoSl,
                 pub FullPath :              PoSl, // not used
                 pub Prefix :                PoSl,
                 pub Location :              PoSl,
+                /// The root part of the path, such as `"/"` in a UNIX path,
+                /// `"C:\"` in a Windows path, or `"\\server\share\"` in a
+                /// UNC path.
                 pub Root :                  PoSl,
+                /// The directory part of the path, such as `"dir/"` in a
+                /// UNIX path or `"dir\"` in a Windows path.
                 pub Directory :             PoSl,
+                /// The number of directory parts in the path, which does
+                /// include `Root` and `Basename`.
                 pub NumDirectoryParts :     usize,
+                /// The number of directory parts in the path that are dots
+                /// directories, i.e. `"."`, `".."`.
                 pub NumDotsDirectoryParts : usize,
+                /// The "file part", if any, which occurs after the last (if
+                /// any) path-name separator.
                 pub Entry :                 PoSl,
+                /// The entry element's stem.
                 pub Stem :                  PoSl,
+                /// The entry element's extension.
                 pub Extension :             PoSl,
                 pub FirstInvalid :          PoSl,
             }
@@ -214,13 +228,22 @@ pub mod libpath {
                 (cl, cr)
             }
 
+            /// Examines the path to the degree necessary to be able to
+            /// classify it.
+            ///
+            /// # Parameters:
+            /// - `path` - the given path to be classified;
+            /// - `parse_flags` - flags that moderate the classification;
+            ///
+            /// # Returns:
+            /// `(classification : Classification, root : PositionalSlice, path_root_stripped : PositionalSlice)`
             pub fn classify_root_(
                 path : &str,
                 parse_flags : i32,
             ) -> (
-                Classification,
-                PoSl, // root
-                PoSl, // path_root_stripped
+                Classification, // classification
+                PoSl,           // root
+                PoSl,           // path_root_stripped
             ) {
                 debug_assert!(!path.is_empty());
 
@@ -291,18 +314,18 @@ pub mod libpath {
                 s : &str,
                 parse_flags : i32,
             ) -> (
-                usize, // number of parts
-                usize, // number of dots parts
+                usize, // number_of_parts
+                usize, // number_of_dots_parts
             ) {
                 {
                     let _ = parse_flags;
                 }
 
-                // This function counts the number of directory parts and the
-                // number of those that are dots directories
+                // This function counts the number of directory parts and
+                // the number of those that are dots directories
 
-                let mut np = 0usize;
-                let mut nd = 0usize;
+                let mut number_of_parts = 0usize;
+                let mut number_of_dots_parts = 0usize;
 
                 let mut prev = 'X';
 
@@ -311,13 +334,13 @@ pub mod libpath {
                 for c in s.chars() {
                     if char_is_path_name_separator_(c) {
                         match num_dots {
-                            1 | 2 => nd += 1,
+                            1 | 2 => number_of_dots_parts += 1,
                             _ => (),
                         }
 
                         if char_is_path_name_separator_(prev) {
                         } else {
-                            np += 1;
+                            number_of_parts += 1;
                         }
 
                         num_dots = 0;
@@ -332,7 +355,13 @@ pub mod libpath {
                     prev = c;
                 }
 
-                (np, nd)
+                (number_of_parts, number_of_dots_parts)
+            }
+
+            #[cfg(test)]
+            mod tests {
+                #![allow(non_snake_case)]
+
             }
         }
 
@@ -597,8 +626,8 @@ pub mod libpath {
                 s : &str,
                 parse_flags : i32,
             ) -> (
-                usize, // number of parts
-                usize, // number of dots parts
+                usize, // number_of_parts
+                usize, // number_of_dots_parts
             ) {
                 {
                     let _ = parse_flags;
@@ -607,8 +636,8 @@ pub mod libpath {
                 // This function counts the number of directory parts and the
                 // number of those that are dots directories
 
-                let mut np = 0usize;
-                let mut nd = 0usize;
+                let mut number_of_parts = 0usize;
+                let mut number_of_dots_parts = 0usize;
 
                 let mut prev = 'X';
 
@@ -617,13 +646,13 @@ pub mod libpath {
                 for c in s.chars() {
                     if char_is_path_name_separator_(c) {
                         match num_dots {
-                            1 | 2 => nd += 1,
+                            1 | 2 => number_of_dots_parts += 1,
                             _ => (),
                         }
 
                         if char_is_path_name_separator_(prev) {
                         } else {
-                            np += 1;
+                            number_of_parts += 1;
                         }
 
                         num_dots = 0;
@@ -638,7 +667,7 @@ pub mod libpath {
                     prev = c;
                 }
 
-                (np, nd)
+                (number_of_parts, number_of_dots_parts)
             }
 
             fn char_is_drive_letter_(c : char) -> bool {
@@ -647,6 +676,12 @@ pub mod libpath {
                     'a'..='z' => true,
                     _ => false,
                 }
+            }
+
+            #[cfg(test)]
+            mod tests {
+                #![allow(non_snake_case)]
+
             }
         }
     }
