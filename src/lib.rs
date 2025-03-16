@@ -4,11 +4,11 @@
  * Purpose: Primary implementation file for libpath.Rust.
  *
  * Created: 16th April 2021
- * Updated: 24th August 2024
+ * Updated: 16th March 2025
  *
  * Home:    http://stlsoft.org/
  *
- * Copyright (c) 2021-2024, Matthew Wilson and Synesis Information Systems
+ * Copyright (c) 2021-2025, Matthew Wilson and Synesis Information Systems
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -133,6 +133,7 @@ pub mod libpath {
                 _Reserved4,
                 HomeRooted,
             }
+
 
             pub fn path_classify(
                 path : &str,
@@ -358,9 +359,25 @@ pub mod libpath {
                 (number_of_parts, number_of_dots_parts)
             }
 
+
             #[cfg(test)]
             mod tests {
                 #![allow(non_snake_case)]
+
+                use super::*;
+
+
+                #[test]
+                fn char_is_path_name_separator__1() {
+
+                    assert!(char_is_path_name_separator_('/'));
+                    assert!(!char_is_path_name_separator_('\\'));
+
+                    assert!(!char_is_path_name_separator_('a'));
+                    assert!(!char_is_path_name_separator_(':'));
+                    assert!(!char_is_path_name_separator_(';'));
+                    assert!(!char_is_path_name_separator_('-'));
+                }
 
             }
         }
@@ -382,6 +399,7 @@ pub mod libpath {
                 pub const IGNORE_INVALID_CHARS_IN_LONG_PATH : i32 = 0x00000002;
             }
 
+
             /// Path classification result
             #[derive(Debug)]
             #[derive(PartialEq)]
@@ -399,6 +417,7 @@ pub mod libpath {
                 UncRooted,
                 HomeRooted,
             }
+
 
             pub fn path_classify(
                 path : &str,
@@ -494,13 +513,22 @@ pub mod libpath {
                 (cl, cr)
             }
 
+            /// Examines the path to the degree necessary to be able to
+            /// classify the path
+            ///
+            /// # Parameters:
+            /// - `path` - the given path to be classified;
+            /// - `parse_flags` - the flags to modulate the classification;
+            ///
+            /// # Returns:
+            /// `(classification : Classification, root : PositionalSlice, path_root_stripped : PositionalSlice)`
             pub fn classify_root_(
                 path : &str,
                 parse_flags : i32,
             ) -> (
-                Classification,
-                PoSl, // root
-                PoSl, // path_root_stripped
+                Classification, // classification
+                PoSl,           // root
+                PoSl,           // path_root_stripped
             ) {
                 debug_assert!(!path.is_empty());
 
@@ -508,13 +536,13 @@ pub mod libpath {
                     let _ = parse_flags;
                 }
 
-                let mut ix = -1;
-
                 let mut c0 : char = '\0';
                 let mut c1 : char = '\0';
                 let mut c2 : char;
 
                 let mut is_drive_2 = false;
+
+                let mut ix = -1;
 
                 for c in path.chars() {
                     ix += 1;
@@ -678,10 +706,55 @@ pub mod libpath {
                 }
             }
 
+
             #[cfg(test)]
             mod tests {
                 #![allow(non_snake_case)]
 
+                use super::*;
+
+
+                #[test]
+                fn char_is_drive_letter__1() {
+
+                    assert!(char_is_drive_letter_('a'));
+                    assert!(char_is_drive_letter_('A'));
+                    assert!(char_is_drive_letter_('c'));
+                    assert!(char_is_drive_letter_('C'));
+                    assert!(char_is_drive_letter_('z'));
+                    assert!(char_is_drive_letter_('Z'));
+
+                    assert!(!char_is_drive_letter_(':'));
+                    assert!(!char_is_drive_letter_('/'));
+                    assert!(!char_is_drive_letter_('.'));
+                }
+
+                #[test]
+                fn char_is_path_name_separator__1() {
+
+                    assert!(char_is_path_name_separator_('/'));
+                    assert!(char_is_path_name_separator_('\\'));
+
+                    assert!(!char_is_path_name_separator_('a'));
+                    assert!(!char_is_path_name_separator_(':'));
+                    assert!(!char_is_path_name_separator_(';'));
+                    assert!(!char_is_path_name_separator_('-'));
+                }
+
+                #[test]
+                fn classify_root__1() {
+
+                }
+
+                #[test]
+                fn count_parts__1() {
+
+                }
+
+                #[test]
+                fn find_last_slash__1() {
+
+                }
             }
         }
     }
@@ -773,6 +846,15 @@ mod tests {
                 assert_eq!(PoSl::new(0, 4), cr.Stem);
                 assert_eq!(PoSl::new(4, 0), cr.Extension);
                 assert!(cr.FirstInvalid.is_empty());
+
+                assert_eq!("name", cr.Input.substring_of(path));
+                assert_eq!("", cr.Prefix.substring_of(path));
+                assert_eq!("", cr.Location.substring_of(path));
+                assert_eq!("", cr.Root.substring_of(path));
+                assert_eq!("", cr.Directory.substring_of(path));
+                assert_eq!("name", cr.Entry.substring_of(path));
+                assert_eq!("name", cr.Stem.substring_of(path));
+                assert_eq!("", cr.Extension.substring_of(path));
             }
 
             {
@@ -793,6 +875,15 @@ mod tests {
                 assert_eq!(PoSl::new(0, 0), cr.Stem);
                 assert_eq!(PoSl::new(0, 4), cr.Extension);
                 assert!(cr.FirstInvalid.is_empty());
+
+                assert_eq!(".ext", cr.Input.substring_of(path));
+                assert_eq!("", cr.Prefix.substring_of(path));
+                assert_eq!("", cr.Location.substring_of(path));
+                assert_eq!("", cr.Root.substring_of(path));
+                assert_eq!("", cr.Directory.substring_of(path));
+                assert_eq!(".ext", cr.Entry.substring_of(path));
+                assert_eq!("", cr.Stem.substring_of(path));
+                assert_eq!(".ext", cr.Extension.substring_of(path));
             }
 
             {
@@ -813,6 +904,13 @@ mod tests {
                 assert_eq!(PoSl::new(0, 2), cr.Stem);
                 assert_eq!(PoSl::new(2, 1), cr.Extension);
                 assert!(cr.FirstInvalid.is_empty());
+
+                assert_eq!("ab.", cr.Input.substring_of(path));
+                assert_eq!("", cr.Prefix.substring_of(path));
+                assert_eq!("", cr.Location.substring_of(path));
+                assert_eq!("", cr.Root.substring_of(path));
+                assert_eq!("", cr.Directory.substring_of(path));
+                assert_eq!("ab.", cr.Entry.substring_of(path));
             }
 
             {
@@ -833,6 +931,13 @@ mod tests {
                 assert_eq!(PoSl::new(0, 2), cr.Stem);
                 assert_eq!(PoSl::new(2, 1), cr.Extension);
                 assert!(cr.FirstInvalid.is_empty());
+
+                assert_eq!("a..", cr.Input.substring_of(path));
+                assert_eq!("", cr.Prefix.substring_of(path));
+                assert_eq!("", cr.Location.substring_of(path));
+                assert_eq!("", cr.Root.substring_of(path));
+                assert_eq!("", cr.Directory.substring_of(path));
+                assert_eq!("a..", cr.Entry.substring_of(path));
             }
 
             {
@@ -853,6 +958,13 @@ mod tests {
                 assert_eq!(PoSl::new(0, 2), cr.Stem);
                 assert_eq!(PoSl::new(2, 1), cr.Extension);
                 assert!(cr.FirstInvalid.is_empty());
+
+                assert_eq!("...", cr.Input.substring_of(path));
+                assert_eq!("", cr.Prefix.substring_of(path));
+                assert_eq!("", cr.Location.substring_of(path));
+                assert_eq!("", cr.Root.substring_of(path));
+                assert_eq!("", cr.Directory.substring_of(path));
+                assert_eq!("...", cr.Entry.substring_of(path));
             }
         }
 
@@ -996,6 +1108,26 @@ mod tests {
                 assert_eq!(PoSl::new(5, 0), cr.Extension);
                 assert!(cr.FirstInvalid.is_empty());
             }
+
+            {
+                let path = "dir-1/../././././././././././abc";
+                let (cl, cr) = path_classify(path, 0);
+
+                assert_eq!(Classification::Relative, cl);
+
+                assert_ne!(ClassificationResult::empty(), cr);
+                assert_eq!(PoSl::new(0, 32), cr.Input);
+                assert_eq!(PoSl::empty(), cr.Prefix);
+                assert_eq!(PoSl::new(0, 29), cr.Location);
+                assert_eq!(PoSl::empty(), cr.Root);
+                assert_eq!(PoSl::new(0, 29), cr.Directory);
+                assert_eq!(12, cr.NumDirectoryParts);
+                assert_eq!(11, cr.NumDotsDirectoryParts);
+                assert_eq!(PoSl::new(29, 3), cr.Entry);
+                assert_eq!(PoSl::new(29, 3), cr.Stem);
+                assert_eq!(PoSl::new(32, 0), cr.Extension);
+                assert!(cr.FirstInvalid.is_empty());
+            }
         }
 
         #[test]
@@ -1037,6 +1169,25 @@ mod tests {
             assert_eq!(PoSl::new(0, 2), cr.Entry);
             assert_eq!(PoSl::new(0, 2), cr.Stem);
             assert_eq!(PoSl::new(2, 0), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+        }
+
+        #[test]
+        fn unix_path_classify_dotsnondots1() {
+            let path = "...";
+            let (cl, cr) = path_classify(path, 0);
+
+            assert_eq!(Classification::Relative, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 3), cr.Input);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::empty(), cr.Location);
+            assert_eq!(PoSl::empty(), cr.Root);
+            assert_eq!(PoSl::empty(), cr.Directory);
+            assert_eq!(0, cr.NumDirectoryParts);
+            assert_eq!(0, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(0, 3), cr.Entry);
             assert!(cr.FirstInvalid.is_empty());
         }
 
@@ -1524,6 +1675,27 @@ mod tests {
             assert_eq!(PoSl::new(0, 2), cr.Entry);
             assert_eq!(PoSl::new(0, 2), cr.Stem);
             assert_eq!(PoSl::new(2, 0), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+        }
+
+        #[test]
+        fn windows_path_classify_root() {
+            let path = "C:/";
+            let (cl, cr) = path_classify(path, 0);
+
+            assert_eq!(Classification::DriveLetterRooted, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 3), cr.Input);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::new(0, 3), cr.Location);
+            assert_eq!(PoSl::new(0, 2), cr.Root);
+            assert_eq!(PoSl::new(2, 1), cr.Directory);
+            assert_eq!(1, cr.NumDirectoryParts);
+            assert_eq!(0, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(3, 0), cr.Entry);
+            assert_eq!(PoSl::new(3, 0), cr.Stem);
+            assert_eq!(PoSl::new(3, 0), cr.Extension);
             assert!(cr.FirstInvalid.is_empty());
         }
 
