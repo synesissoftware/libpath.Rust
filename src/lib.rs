@@ -374,8 +374,20 @@ pub mod libpath {
             mod tests {
                 #![allow(non_snake_case)]
 
-                use super::*;
+                use super::{
+                    char_is_path_name_separator_,
+                    classification_flags,
+                    classify_root_,
+                    count_parts_,
+                    Classification,
+                };
 
+                use fastparse::fastparse::types::PositionalSlice as PoSl;
+
+
+                #[test]
+                fn char_is_drive_letter__1() {
+                }
 
                 #[test]
                 fn char_is_path_name_separator__1() {
@@ -386,6 +398,18 @@ pub mod libpath {
                     assert!(!char_is_path_name_separator_(':'));
                     assert!(!char_is_path_name_separator_(';'));
                     assert!(!char_is_path_name_separator_('-'));
+                }
+
+                #[test]
+                fn classify_root__1() {
+                }
+
+                #[test]
+                fn count_parts__1() {
+                }
+
+                #[test]
+                fn find_last_slash__1() {
                 }
             }
         }
