@@ -10,7 +10,7 @@
 ## Functional improvements
 
 * [ ] Rename `ClassificationResult` to `PathDescriptor`;
-* [ ] Rename `ClassificationResult#Basename` to `#EntryName`;
+* [x] Rename `ClassificationResult#Entry` to `#EntryName`;
 * [ ] Remove `ClassificationResult#FirstInvalid` and use in function calls;
 * [ ] Add trait `Path` that provides access to elements (as `&str`, etc.);
 * [ ] Implement `IGNORE_SLASH_RUNS`;
