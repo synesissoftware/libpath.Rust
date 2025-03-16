@@ -378,7 +378,6 @@ pub mod libpath {
 
                 #[test]
                 fn char_is_path_name_separator__1() {
-
                     assert!(char_is_path_name_separator_('/'));
                     assert!(!char_is_path_name_separator_('\\'));
 
@@ -387,7 +386,6 @@ pub mod libpath {
                     assert!(!char_is_path_name_separator_(';'));
                     assert!(!char_is_path_name_separator_('-'));
                 }
-
             }
         }
 
@@ -726,7 +724,6 @@ pub mod libpath {
 
                 #[test]
                 fn char_is_drive_letter__1() {
-
                     assert!(char_is_drive_letter_('a'));
                     assert!(char_is_drive_letter_('A'));
                     assert!(char_is_drive_letter_('c'));
@@ -741,7 +738,6 @@ pub mod libpath {
 
                 #[test]
                 fn char_is_path_name_separator__1() {
-
                     assert!(char_is_path_name_separator_('/'));
                     assert!(char_is_path_name_separator_('\\'));
 
@@ -753,17 +749,14 @@ pub mod libpath {
 
                 #[test]
                 fn classify_root__1() {
-
                 }
 
                 #[test]
                 fn count_parts__1() {
-
                 }
 
                 #[test]
                 fn find_last_slash__1() {
-
                 }
             }
         }
