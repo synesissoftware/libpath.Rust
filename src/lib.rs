@@ -49,13 +49,27 @@ pub mod libpath {
 
             use fastparse::fastparse::types::PositionalSlice as PoSl;
 
+
+            /// Describes the classification.
+            ///
+            /// A given full path will have the following elements:
+            /// - FullPath - the full
+            /// - Prefix
             #[derive(Debug)]
             #[derive(PartialEq, Eq)]
             pub struct ClassificationResult {
                 /// The input string's position.
                 pub Input :                 PoSl,
-                pub FullPath :              PoSl, // not used
+                /// The full path.
+                ///
+                /// NOTE: this is not used currently.
+                pub FullPath :              PoSl,
+                /// The prefix.
                 pub Prefix :                PoSl,
+                /// TODO
+                ///
+                /// # Note:
+                /// Equivalent to **recls**' `DirectoryPath`.
                 pub Location :              PoSl,
                 /// The root part of the path, such as `"/"` in a UNIX path,
                 /// `"C:\"` in a Windows path, or `"\\server\share\"` in a
@@ -77,6 +91,7 @@ pub mod libpath {
                 pub Stem :                  PoSl,
                 /// The entry element's extension.
                 pub Extension :             PoSl,
+                /// 0-based index of the first invalid character in `Input`.
                 pub FirstInvalid :          PoSl,
             }
 
@@ -180,6 +195,7 @@ pub mod libpath {
                         cr.Directory = PoSl::new(root.len(), dir_len);
 
                         let (num_parts, num_dir_parts) = count_parts_(cr.Directory.substring_of(path), parse_flags);
+
                         cr.NumDirectoryParts = num_parts;
                         cr.NumDotsDirectoryParts = num_dir_parts;
 
@@ -261,8 +277,9 @@ pub mod libpath {
                     let _ = parse_flags;
                 }
 
-                let mut ix = -1;
                 let mut tilde_0 = false;
+
+                let mut ix = -1;
                 for c in path.chars() {
                     ix += 1;
 
@@ -368,23 +385,38 @@ pub mod libpath {
                 (number_of_parts, number_of_dots_parts)
             }
 
-
             #[cfg(test)]
             mod tests {
                 #![allow(non_snake_case)]
 
-                use super::*;
+                use super::{
+                    classification_flags,
+                    classify_root_,
+                    count_parts_,
+                    Classification,
+                };
+
+                use fastparse::fastparse::types::PositionalSlice as PoSl;
 
 
                 #[test]
-                fn char_is_path_name_separator__1() {
-                    assert!(char_is_path_name_separator_('/'));
-                    assert!(!char_is_path_name_separator_('\\'));
+                fn char_is_drive_letter__1() {
+                }
 
-                    assert!(!char_is_path_name_separator_('a'));
-                    assert!(!char_is_path_name_separator_(':'));
-                    assert!(!char_is_path_name_separator_(';'));
-                    assert!(!char_is_path_name_separator_('-'));
+                #[test]
+                fn char_is_path_name_separator__1() {
+                }
+
+                #[test]
+                fn classify_root__1() {
+                }
+
+                #[test]
+                fn count_parts__1() {
+                }
+
+                #[test]
+                fn find_last_slash__1() {
                 }
             }
         }
@@ -463,6 +495,7 @@ pub mod libpath {
                         cr.Directory = PoSl::new(root.len(), dir_len);
 
                         let (num_parts, num_dir_parts) = count_parts_(cr.Directory.substring_of(path), parse_flags);
+
                         cr.NumDirectoryParts = num_parts;
                         cr.NumDotsDirectoryParts = num_dir_parts;
 
@@ -503,15 +536,15 @@ pub mod libpath {
 
                             if is_dots {
                                 cr.Stem = cr.EntryName;
-                                cr.Extension = PoSl::new(cr.EntryName.length, 0);
+                                cr.Extension = PoSl::new(cr.EntryName.len(), 0);
                             } else {
                                 cr.Stem = PoSl::new(cr.EntryName.offset, index);
-                                cr.Extension = PoSl::new(cr.EntryName.offset + index, cr.EntryName.length - index);
+                                cr.Extension = PoSl::new(cr.EntryName.offset + index, cr.EntryName.len() - index);
                             }
                         },
                         None => {
                             cr.Stem = cr.EntryName;
-                            cr.Extension = PoSl::new(cr.EntryName.offset + cr.EntryName.length, 0);
+                            cr.Extension = PoSl::new(cr.EntryName.offset + cr.EntryName.len(), 0);
                         },
                     }
                 }
@@ -551,7 +584,6 @@ pub mod libpath {
                 let mut is_drive_2 = false;
 
                 let mut ix = -1;
-
                 for c in path.chars() {
                     ix += 1;
 
@@ -719,7 +751,16 @@ pub mod libpath {
             mod tests {
                 #![allow(non_snake_case)]
 
-                use super::*;
+                use super::{
+                    char_is_drive_letter_,
+                    char_is_path_name_separator_,
+                    classification_flags,
+                    classify_root_,
+                    count_parts_,
+                    Classification,
+                };
+
+                use fastparse::fastparse::types::PositionalSlice as PoSl;
 
 
                 #[test]
