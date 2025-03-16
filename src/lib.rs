@@ -4,11 +4,11 @@
  * Purpose: Primary implementation file for libpath.Rust.
  *
  * Created: 16th April 2021
- * Updated: 29th March 2024
+ * Updated: 16th March 2025
  *
  * Home:    http://stlsoft.org/
  *
- * Copyright (c) 2021-2024, Matthew Wilson and Synesis Information Systems
+ * Copyright (c) 2021-2025, Matthew Wilson and Synesis Information Systems
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,6 +83,14 @@ pub mod libpath {
                         FirstInvalid :          PoSl::empty(),
                     }
                 }
+            }
+
+
+            #[cfg(test)]
+            mod tests {
+                #![allow(non_snake_case)]
+
+                use super::*;
             }
         }
 
@@ -333,6 +341,14 @@ pub mod libpath {
                 }
 
                 (np, nd)
+            }
+
+
+            #[cfg(test)]
+            mod tests {
+                #![allow(non_snake_case)]
+
+                use super::*;
             }
         }
 
@@ -648,7 +664,23 @@ pub mod libpath {
                     _ => false,
                 }
             }
+
+
+            #[cfg(test)]
+            mod tests {
+                #![allow(non_snake_case)]
+
+                use super::*;
+            }
         }
+    }
+
+
+    #[cfg(test)]
+    mod tests {
+        #![allow(non_snake_case)]
+
+        use super::*;
     }
 }
 
