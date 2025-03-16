@@ -108,6 +108,7 @@ pub mod libpath {
             }
         }
 
+
         pub mod unix {
 
             use super::common::ClassificationResult;
@@ -388,15 +389,8 @@ pub mod libpath {
                 }
 
             }
-
-
-            #[cfg(test)]
-            mod tests {
-                #![allow(non_snake_case)]
-
-                use super::*;
-            }
         }
+
 
         pub mod windows {
 
@@ -784,6 +778,7 @@ pub mod libpath {
     }
 }
 
+
 #[cfg(test)]
 #[allow(non_snake_case)]
 mod tests {
@@ -876,7 +871,7 @@ mod tests {
                 assert_eq!("", cr.Location.substring_of(path));
                 assert_eq!("", cr.Root.substring_of(path));
                 assert_eq!("", cr.Directory.substring_of(path));
-                assert_eq!("name", cr.Entry.substring_of(path));
+                assert_eq!("name", cr.EntryName.substring_of(path));
                 assert_eq!("name", cr.Stem.substring_of(path));
                 assert_eq!("", cr.Extension.substring_of(path));
             }
@@ -905,7 +900,7 @@ mod tests {
                 assert_eq!("", cr.Location.substring_of(path));
                 assert_eq!("", cr.Root.substring_of(path));
                 assert_eq!("", cr.Directory.substring_of(path));
-                assert_eq!(".ext", cr.Entry.substring_of(path));
+                assert_eq!(".ext", cr.EntryName.substring_of(path));
                 assert_eq!("", cr.Stem.substring_of(path));
                 assert_eq!(".ext", cr.Extension.substring_of(path));
             }
@@ -934,7 +929,7 @@ mod tests {
                 assert_eq!("", cr.Location.substring_of(path));
                 assert_eq!("", cr.Root.substring_of(path));
                 assert_eq!("", cr.Directory.substring_of(path));
-                assert_eq!("ab.", cr.Entry.substring_of(path));
+                assert_eq!("ab.", cr.EntryName.substring_of(path));
             }
 
             {
@@ -961,7 +956,7 @@ mod tests {
                 assert_eq!("", cr.Location.substring_of(path));
                 assert_eq!("", cr.Root.substring_of(path));
                 assert_eq!("", cr.Directory.substring_of(path));
-                assert_eq!("a..", cr.Entry.substring_of(path));
+                assert_eq!("a..", cr.EntryName.substring_of(path));
             }
 
             {
@@ -988,7 +983,7 @@ mod tests {
                 assert_eq!("", cr.Location.substring_of(path));
                 assert_eq!("", cr.Root.substring_of(path));
                 assert_eq!("", cr.Directory.substring_of(path));
-                assert_eq!("...", cr.Entry.substring_of(path));
+                assert_eq!("...", cr.EntryName.substring_of(path));
             }
         }
 
@@ -1147,7 +1142,7 @@ mod tests {
                 assert_eq!(PoSl::new(0, 29), cr.Directory);
                 assert_eq!(12, cr.NumDirectoryParts);
                 assert_eq!(11, cr.NumDotsDirectoryParts);
-                assert_eq!(PoSl::new(29, 3), cr.Entry);
+                assert_eq!(PoSl::new(29, 3), cr.EntryName);
                 assert_eq!(PoSl::new(29, 3), cr.Stem);
                 assert_eq!(PoSl::new(32, 0), cr.Extension);
                 assert!(cr.FirstInvalid.is_empty());
@@ -1211,7 +1206,7 @@ mod tests {
             assert_eq!(PoSl::empty(), cr.Directory);
             assert_eq!(0, cr.NumDirectoryParts);
             assert_eq!(0, cr.NumDotsDirectoryParts);
-            assert_eq!(PoSl::new(0, 3), cr.Entry);
+            assert_eq!(PoSl::new(0, 3), cr.EntryName);
             assert!(cr.FirstInvalid.is_empty());
         }
 
@@ -1717,7 +1712,7 @@ mod tests {
             assert_eq!(PoSl::new(2, 1), cr.Directory);
             assert_eq!(1, cr.NumDirectoryParts);
             assert_eq!(0, cr.NumDotsDirectoryParts);
-            assert_eq!(PoSl::new(3, 0), cr.Entry);
+            assert_eq!(PoSl::new(3, 0), cr.EntryName);
             assert_eq!(PoSl::new(3, 0), cr.Stem);
             assert_eq!(PoSl::new(3, 0), cr.Extension);
             assert!(cr.FirstInvalid.is_empty());
