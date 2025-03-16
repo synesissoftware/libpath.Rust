@@ -9,15 +9,23 @@ authors = [
 ]
 description = "Path parsing library (for Rust)"
 edition = "2021"
-homepage = "https://github.com/synesissoftware/libpath.Rust"
+repository = "https://github.com/synesissoftware/libpath.Rust"
 license = "BSD-3-Clause"
 name = "libpath"
 readme = "README.md"
-version = "0.0.1"
+version = "0.0.2"
 
 
 # ##########################################################
 # Targets
+
+[lib]
+name = "libpath"
+path = "src/lib.rs"
+
+[[bin]]
+name = "libver"
+path = "test/scratch/libver/main.rs"
 
 
 # ##########################################################
