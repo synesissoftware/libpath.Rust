@@ -137,6 +137,8 @@ pub mod libpath {
                 pub const IGNORE_INVALID_CHARS : i32 = 0x00000002;
                 /// T.B.C.
                 pub const RECOGNISE_TILDE_HOME : i32 = 0x00000004;
+                /// T.B.C.
+                pub const ASSUME_DIRECTORY : i32 = 0x00000008;
             }
 
 
@@ -178,7 +180,7 @@ pub mod libpath {
 
                 cr.Input = PoSl::new(0, path.len());
 
-                let (cl, root, path_root_stripped) = classify_root_(path, parse_flags);
+                let (cl, root, path_root_stripped, _first_bad_char_index) = classify_root_(path, parse_flags);
 
                 cr.Root = PoSl::new(0, root.len());
 
@@ -214,37 +216,20 @@ pub mod libpath {
                     cr.Stem = cr.EntryName;
                     cr.Extension = cr.EntryName;
                 } else {
+                    let entry_s = cr.EntryName.substring_of(path);
+
+
                     let last_entry_dot = cr.EntryName.substring_of(path).rfind('.');
 
+
                     match last_entry_dot {
-                        Some(index) => {
-                            // handle special dots directories "." and ".."
-
-                            let mut is_dots = false;
-
-                            if !is_dots && 1 == cr.EntryName.len() {
-                                is_dots = true;
-                            }
-
-                            if !is_dots {
-                                if 2 == cr.EntryName.len() {
-                                    if ".." == cr.EntryName.substring_of(path) {
-                                        is_dots = true;
-                                    }
-                                }
-                            }
-
-                            if is_dots {
-                                cr.Stem = cr.EntryName;
-                                cr.Extension = PoSl::new(cr.EntryName.length, 0);
-                            } else {
-                                cr.Stem = PoSl::new(cr.EntryName.offset, index);
-                                cr.Extension = PoSl::new(cr.EntryName.offset + index, cr.EntryName.length - index);
-                            }
+                        Some(index) if index + 1 < cr.EntryName.len() => {
+                            cr.Stem = PoSl::new(cr.EntryName.offset, index);
+                            cr.Extension = PoSl::new(cr.EntryName.offset + index, cr.EntryName.len() - index);
                         },
-                        None => {
+                        _ => {
                             cr.Stem = cr.EntryName;
-                            cr.Extension = PoSl::new(cr.EntryName.offset + cr.EntryName.length, 0);
+                            cr.Extension = PoSl::new(cr.EntryName.offset + cr.EntryName.len(), 0);
                         },
                     }
                 }
@@ -262,7 +247,7 @@ pub mod libpath {
             /// - `parse_flags` - flags that moderate the classification;
             ///
             /// # Returns:
-            /// `(classification : Classification, root : PositionalSlice, path_root_stripped : PositionalSlice)`
+            /// `(classification : Classification, root : PositionalSlice, path_root_stripped : PositionalSlice, first_bad_char_index : Option<usize>)`
             fn classify_root_(
                 path : &str,
                 parse_flags : i32,
@@ -270,6 +255,7 @@ pub mod libpath {
                 Classification, // classification
                 PoSl,           // root
                 PoSl,           // path_root_stripped
+                Option<usize>,  // first_bad_char_index
             ) {
                 debug_assert!(!path.is_empty());
 
@@ -283,10 +269,24 @@ pub mod libpath {
                 for c in path.chars() {
                     ix += 1;
 
-                    if '~' == c && 0 == ix {
-                        tilde_0 = true;
+                    if char_is_bad_in_all_contexts_(c) {
+                        return (
+                            // argument list:
+                            Classification::InvalidChars,
+                            PoSl::empty(),
+                            PoSl::empty(),
+                            Some(ix as usize),
+                        );
+                    }
 
-                        continue;
+                    if '~' == c && 0 == ix {
+                        if classification_flags::RECOGNISE_TILDE_HOME
+                            == (classification_flags::RECOGNISE_TILDE_HOME & parse_flags)
+                        {
+                            tilde_0 = true;
+
+                            continue;
+                        }
                     }
 
                     if char_is_path_name_separator_(c) {
@@ -294,17 +294,29 @@ pub mod libpath {
                             return (
                                 // argument list:
                                 Classification::SlashRooted,
-                                PoSl::empty(),
-                                PoSl::new(0, path.len()),
+                                PoSl::new(0, 1),
+                                PoSl::new(1, path.len() - 1),
+                                None,
                             );
                         }
 
-                        if 1 == ix {
+                        if 1 == ix && tilde_0 {
                             return (
                                 // argument list:
                                 Classification::HomeRooted,
                                 PoSl::new(0, 1),
                                 PoSl::new(1, path.len() - 1),
+                                None,
+                            );
+                        }
+                    } else {
+                        if 0 == ix {
+                            return (
+                                // argument list:
+                                Classification::Relative,
+                                PoSl::empty(),
+                                PoSl::new(0, path.len()),
+                                None,
                             );
                         }
                     }
@@ -318,6 +330,7 @@ pub mod libpath {
                         Classification::HomeRooted,
                         PoSl::new(0, 1),
                         PoSl::new(1, path.len() - 1),
+                        None,
                     );
                 }
 
@@ -326,7 +339,16 @@ pub mod libpath {
                     Classification::Relative,
                     PoSl::empty(),
                     PoSl::new(0, path.len()),
+                    None,
                 )
+            }
+
+            fn char_is_bad_in_all_contexts_(c : char) -> bool {
+                match c {
+                    '|' => true,
+
+                    _ => false,
+                }
             }
 
             fn char_is_path_name_separator_(c : char) -> bool {
@@ -405,14 +427,91 @@ pub mod libpath {
 
                 #[test]
                 fn char_is_path_name_separator__1() {
+/*
+                    assert!(char_is_path_name_separator_('/'));
+                    assert!(!char_is_path_name_separator_('\\'));
+
+                    assert!(!char_is_path_name_separator_('a'));
+                    assert!(!char_is_path_name_separator_(':'));
+                    assert!(!char_is_path_name_separator_(';'));
+                    assert!(!char_is_path_name_separator_('-'));
+ */
                 }
 
                 #[test]
                 fn classify_root__1() {
+                    let test_criteria = &[
+                        ("dir", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 3), None),
+                        ("file.ext", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 8), None),
+                        ("/", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 0), None),
+                        ("/dir", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 3), None),
+                        ("/file.ext", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 8), None),
+                        ("/dir/", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 4), None),
+                        ("/dir/file.ext", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 12), None),
+                        ("~", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 1), None),
+                        ("~", classification_flags::RECOGNISE_TILDE_HOME, Classification::HomeRooted, PoSl::new(0, 1), PoSl::new(1, 0), None),
+                        ("~/", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 2), None),
+                        ("~/", classification_flags::RECOGNISE_TILDE_HOME, Classification::HomeRooted, PoSl::new(0, 1), PoSl::new(1, 1), None),
+                        ("~a", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 2), None),
+                        ("~a", classification_flags::RECOGNISE_TILDE_HOME, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 2), None),
+                        ("~a/", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 3), None),
+                        ("~a/", classification_flags::RECOGNISE_TILDE_HOME, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 3), None),
+
+                        ("|a", 0, Classification::InvalidChars, PoSl::empty(), PoSl::empty(), Some(0)),
+
+                        ("a|", 0, Classification::Relative, PoSl::empty(), PoSl::new(0, 2), None),
+                    ];
+
+                    for (
+                        path,
+                        parse_flags,
+                        expected_classification,
+                        expected_root,
+                        expected_path_root_stripped,
+                        expected_first_bad_char_index,
+                    ) in test_criteria
+                    {
+                        let (classification, root, path_root_stripped, first_bad_char_index) =
+                            classify_root_(*path, *parse_flags);
+
+                        assert_eq!(*expected_classification, classification, "wrong classification {classification:?} ({expected_classification:?} expected) when parsing '{path}' with flags 0x{parse_flags:08x}");
+                        assert_eq!(*expected_root, root, "wrong root {root:?} ({expected_root:?} expected) when parsing '{path}' with flags 0x{parse_flags:08x}");
+                        assert_eq!(*expected_path_root_stripped, path_root_stripped, "wrong path-root-stripped {path_root_stripped:?} ({expected_path_root_stripped:?} expected) when parsing '{path}' with flags 0x{parse_flags:08x}");
+                        assert_eq!(*expected_first_bad_char_index, first_bad_char_index, "wrong first-bad-char-index {first_bad_char_index:?} ({expected_first_bad_char_index:?} expected) when parsing '{path}' with flags 0x{parse_flags:08x}");
+                    }
                 }
 
                 #[test]
                 fn count_parts__1() {
+                    let test_criteria = &[
+                        ("", 0, 0, 0),
+                        ("a", 0, 0, 0),
+                        ("a/", 0, 1, 0),
+                        ("abc", 0, 0, 0),
+                        ("abc/", 0, 1, 0),
+                        ("abc/def", 0, 1, 0),
+                        ("abc/def/", 0, 2, 0),
+                        ("🐻", 0, 0, 0),
+                        ("🐻/", 0, 1, 0),
+                        ("🐻/🐻‍❄️", 0, 1, 0),
+                        ("🐻/🐻‍❄️/", 0, 2, 0),
+                        ("/", 0, 1, 0),
+                        ("/abc", 0, 1, 0),
+                        ("/abc/", 0, 2, 0),
+                        ("/abc/def", 0, 2, 0),
+                        ("/abc/def/", 0, 3, 0),
+                        ("..", 0, 0, 0),
+                        ("../", 0, 1, 1),
+                        ("/..", 0, 1, 0),
+                        ("/../", 0, 2, 1),
+                    ];
+
+                    for (s, parse_flags, expected_number_of_parts, expected_number_of_dots_parts) in test_criteria {
+                        let (number_of_parts, number_of_dots_parts) = count_parts_(*s, *parse_flags);
+
+                        assert_eq!(*expected_number_of_parts, number_of_parts, "wrong number of parts {number_of_parts} ({expected_number_of_parts} expected) when parsing '{s}'");
+                        assert_eq!(*expected_number_of_dots_parts, number_of_dots_parts, "wrong number of dots parts {number_of_dots_parts} ({expected_number_of_dots_parts} expected) when parsing '{s}'");
+                    }
                 }
 
                 #[test]
@@ -478,7 +577,7 @@ pub mod libpath {
 
                 cr.Input = PoSl::new(0, path.len());
 
-                let (cl, root, path_root_stripped) = classify_root_(path, parse_flags);
+                let (cl, root, path_root_stripped, _first_bad_char_index) = classify_root_(path, parse_flags);
 
                 cr.Root = PoSl::new(0, root.len());
 
@@ -562,7 +661,7 @@ pub mod libpath {
             /// - `parse_flags` - flags that moderate the classification;
             ///
             /// # Returns:
-            /// `(classification : Classification, root : PositionalSlice, path_root_stripped : PositionalSlice)`
+            /// `(classification : Classification, root : PositionalSlice, path_root_stripped : PositionalSlice, first_bad_char_index : Option<usize>)`
             fn classify_root_(
                 path : &str,
                 parse_flags : i32,
@@ -570,6 +669,7 @@ pub mod libpath {
                 Classification, // classification
                 PoSl,           // root
                 PoSl,           // path_root_stripped
+                Option<usize>,  // first_bad_char_index
             ) {
                 debug_assert!(!path.is_empty());
 
@@ -594,67 +694,110 @@ pub mod libpath {
                         _ => (),
                     }
 
+                    if 0 == ix {
+                        if '/' == c {
+                            return (
+                                // argument list:
+                                Classification::SlashRooted,
+                                PoSl::new(0, 1),
+                                PoSl::new(1, path.len() - 1),
+                                None,
+                            );
+                        }
+                    }
 
                     if ix == 1 {
+                        if '~' == c0 && char_is_path_name_separator_(c1) {
+                            if classification_flags::RECOGNISE_TILDE_HOME
+                                == (classification_flags::RECOGNISE_TILDE_HOME & parse_flags)
+                            {
+                                return (
+                                    // argument list:
+                                    Classification::HomeRooted,
+                                    PoSl::new(0, 1),
+                                    PoSl::new(1, path.len() - 1),
+                                    None,
+                                );
+                            }
+                        }
+
                         if char_is_drive_letter_(c0) && ':' == c1 {
                             is_drive_2 = true;
                         }
 
-                        if '~' == c0 && char_is_path_name_separator_(c1) {
+
+                        if '/' == c0 && '/' == c {
+
+                            ; // TODO
+                        } else if '\\' == c0 {
+
                             return (
                                 // argument list:
-                                Classification::HomeRooted,
+                                Classification::SlashRooted,
                                 PoSl::new(0, 1),
                                 PoSl::new(1, path.len() - 1),
+                                None,
                             );
                         }
                     }
 
                     if ix == 2 {
                         if is_drive_2 {
-                            let classification = if char_is_path_name_separator_(c) {
-                                Classification::DriveLetterRooted
+                            if char_is_path_name_separator_(c) {
+                                return (
+                                    // argument list:
+                                    Classification::DriveLetterRooted,
+                                    PoSl::new(0, 3),
+                                    PoSl::new(3, path.len() - 3),
+                                    None,
+                                );
                             } else {
-                                Classification::DriveLetterRelative
-                            };
+                                return (
+                                    // argument list:
+                                    Classification::DriveLetterRelative,
+                                    PoSl::new(0, 2),
+                                    PoSl::new(2, path.len() - 2),
+                                    None,
+                                );
+                            }
+                        }
+                    }
+                }
 
+
+                if 0 == ix {
+                    if '~' == c0 {
+                        if classification_flags::RECOGNISE_TILDE_HOME
+                            == (classification_flags::RECOGNISE_TILDE_HOME & parse_flags)
+                        {
                             return (
                                 // argument list:
-                                classification,
-                                PoSl::new(0, 2),
-                                PoSl::new(2, path.len() - 2),
+                                Classification::HomeRooted,
+                                PoSl::new(0, 1),
+                                PoSl::new(1, path.len() - 1),
+                                None,
                             );
                         }
                     }
 
-                    if char_is_path_name_separator_(c) {
-                        if 0 == ix {
-                            return (
-                                // argument list:
-                                Classification::SlashRooted,
-                                PoSl::empty(),
-                                PoSl::new(0, path.len()),
-                            );
-                        }
-
-                        break;
+                    if char_is_path_name_separator_(c0) {
+                        return (
+                            // argument list:
+                            Classification::SlashRooted,
+                            PoSl::new(0, 1),
+                            PoSl::new(1, path.len() - 1),
+                            None,
+                        );
                     }
                 }
 
-                if 0 == ix && '~' == c0 {
-                    return (
-                        // argument list:
-                        Classification::HomeRooted,
-                        PoSl::new(0, 1),
-                        PoSl::new(1, path.len() - 1),
-                    );
-                }
 
                 (
                     // argument list:
                     Classification::Relative,
                     PoSl::empty(),
                     PoSl::new(0, path.len()),
+                    None,
                 )
             }
 
@@ -790,10 +933,115 @@ pub mod libpath {
 
                 #[test]
                 fn classify_root__1() {
+                    let test_criteria = &[
+                        (r"abc", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 3), None),
+
+                        (r"abc.def", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 7), None),
+
+                        (r"/", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 0), None),
+                        (r"\", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 0), None),
+
+                        (r"/abc", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 3), None),
+                        (r"\abc", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 3), None),
+
+                        (r"/abc.def", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 7), None),
+                        (r"\abc.def", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 7), None),
+
+                        (r"C:/dir/sub-dir/file.ext", 0, Classification::DriveLetterRooted, PoSl::new(0, 3), PoSl::new(3, 20), None),
+                        (r"C:\dir\sub-dir\file.ext", 0, Classification::DriveLetterRooted, PoSl::new(0, 3), PoSl::new(3, 20), None),
+
+                        (r"C:dir/sub-dir/file.ext", 0, Classification::DriveLetterRelative, PoSl::new(0, 2), PoSl::new(2, 20), None),
+                        (r"C:dir\sub-dir\file.ext", 0, Classification::DriveLetterRelative, PoSl::new(0, 2), PoSl::new(2, 20), None),
+
+                        ("abc", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 3), None),
+                        ("abc.def", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 7), None),
+                        ("/", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 0), None),
+                        ("/abc", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 3), None),
+                        ("/abc.def", 0, Classification::SlashRooted, PoSl::new(0, 1), PoSl::new(1, 7), None),
+                        ("~", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 1), None),
+                        ("~", classification_flags::RECOGNISE_TILDE_HOME, Classification::HomeRooted, PoSl::new(0, 1), PoSl::new(1, 0), None),
+                        ("~/", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 2), None),
+                        ("~/", classification_flags::RECOGNISE_TILDE_HOME, Classification::HomeRooted, PoSl::new(0, 1), PoSl::new(1, 1), None),
+                        ("~a", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 2), None),
+                        ("~a", classification_flags::RECOGNISE_TILDE_HOME, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 2), None),
+                        ("~a/", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 3), None),
+                        ("~a/", classification_flags::RECOGNISE_TILDE_HOME, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 3), None),
+
+                        // ("|a", 0, Classification::InvalidChars, PoSl::empty(), PoSl::empty(), Some(0)),
+                        ("a|", 0, Classification::Relative, PoSl::empty(), PoSl::new(0, 2), None),
+                    ];
+
+                    for (
+                        path,
+                        parse_flags,
+                        expected_classification,
+                        expected_root,
+                        expected_path_root_stripped,
+                        expected_first_bad_char_index,
+                    ) in test_criteria
+                    {
+                        let (classification, root, path_root_stripped, first_bad_char_index) =
+                            classify_root_(*path, *parse_flags);
+
+                        assert_eq!(*expected_classification, classification, "wrong classification {classification:?} ({expected_classification:?} expected) when parsing '{path}' with flags 0x{parse_flags:08x}");
+                        assert_eq!(*expected_root, root, "wrong root {root:?} ({expected_root:?} expected) when parsing '{path}' with flags 0x{parse_flags:08x}");
+                        assert_eq!(*expected_path_root_stripped, path_root_stripped, "wrong path-root-stripped {path_root_stripped:?} ({expected_path_root_stripped:?} expected) when parsing '{path}' with flags 0x{parse_flags:08x}");
+                        assert_eq!(*expected_first_bad_char_index, first_bad_char_index, "wrong first-bad-char-index {first_bad_char_index:?} ({expected_first_bad_char_index:?} expected) when parsing '{path}' with flags 0x{parse_flags:08x}");
+                    }
                 }
 
                 #[test]
                 fn count_parts__1() {
+                    let test_criteria = &[
+                        (r"", 0, 0, 0),
+                        (r"a", 0, 0, 0),
+                        (r"a\", 0, 1, 0),
+                        (r"abc", 0, 0, 0),
+                        (r"abc\", 0, 1, 0),
+                        (r"abc\def", 0, 1, 0),
+                        (r"abc\def\", 0, 2, 0),
+                        (r"🐻", 0, 0, 0),
+                        (r"🐻\", 0, 1, 0),
+                        (r"🐻\🐻‍❄️", 0, 1, 0),
+                        (r"🐻\🐻‍❄️\", 0, 2, 0),
+                        (r"\", 0, 1, 0),
+                        (r"\abc", 0, 1, 0),
+                        (r"\abc\", 0, 2, 0),
+                        (r"\abc\def", 0, 2, 0),
+                        (r"\abc\def\", 0, 3, 0),
+                        (r"..", 0, 0, 0),
+                        (r"..\", 0, 1, 1),
+                        (r"\..", 0, 1, 0),
+                        (r"\..\", 0, 2, 1),
+
+                        ("", 0, 0, 0),
+                        ("a", 0, 0, 0),
+                        ("a/", 0, 1, 0),
+                        ("abc", 0, 0, 0),
+                        ("abc/", 0, 1, 0),
+                        ("abc/def", 0, 1, 0),
+                        ("abc/def/", 0, 2, 0),
+                        ("🐻", 0, 0, 0),
+                        ("🐻/", 0, 1, 0),
+                        ("🐻/🐻‍❄️", 0, 1, 0),
+                        ("🐻/🐻‍❄️/", 0, 2, 0),
+                        ("/", 0, 1, 0),
+                        ("/abc", 0, 1, 0),
+                        ("/abc/", 0, 2, 0),
+                        ("/abc/def", 0, 2, 0),
+                        ("/abc/def/", 0, 3, 0),
+                        ("..", 0, 0, 0),
+                        ("../", 0, 1, 1),
+                        ("/..", 0, 1, 0),
+                        ("/../", 0, 2, 1),
+                    ];
+
+                    for (s, parse_flags, expected_number_of_parts, expected_number_of_dots_parts) in test_criteria {
+                        let (number_of_parts, number_of_dots_parts) = count_parts_(*s, *parse_flags);
+
+                        assert_eq!(*expected_number_of_parts, number_of_parts, "wrong number of parts {number_of_parts} ({expected_number_of_parts} expected) when parsing '{s}'");
+                        assert_eq!(*expected_number_of_dots_parts, number_of_dots_parts, "wrong number of dots parts {number_of_dots_parts} ({expected_number_of_dots_parts} expected) when parsing '{s}'");
+                    }
                 }
 
                 #[test]
@@ -802,25 +1050,12 @@ pub mod libpath {
             }
         }
     }
-
-
-    #[cfg(test)]
-    mod tests {
-        #![allow(non_snake_case)]
-
-        use super::*;
-    }
 }
-
 
 #[cfg(test)]
 #[allow(non_snake_case)]
 mod tests {
-    use crate::libpath::util::{
-        common::ClassificationResult,
-        // unix::*,
-        // windows::*,
-    };
+    use crate::libpath::util::common::ClassificationResult;
 
     use fastparse::fastparse::types::PositionalSlice as PoSl;
 
@@ -958,8 +1193,8 @@ mod tests {
                 assert_eq!(0, cr.NumDirectoryParts);
                 assert_eq!(0, cr.NumDotsDirectoryParts);
                 assert_eq!(PoSl::new(0, 3), cr.EntryName);
-                assert_eq!(PoSl::new(0, 2), cr.Stem);
-                assert_eq!(PoSl::new(2, 1), cr.Extension);
+                assert_eq!(PoSl::new(0, 3), cr.Stem);
+                assert_eq!(PoSl::new(3, 0), cr.Extension);
                 assert!(cr.FirstInvalid.is_empty());
 
                 assert_eq!("ab.", cr.Input.substring_of(path));
@@ -968,6 +1203,8 @@ mod tests {
                 assert_eq!("", cr.Root.substring_of(path));
                 assert_eq!("", cr.Directory.substring_of(path));
                 assert_eq!("ab.", cr.EntryName.substring_of(path));
+                assert_eq!("ab.", cr.Stem.substring_of(path));
+                assert_eq!("", cr.Extension.substring_of(path));
             }
 
             {
@@ -986,8 +1223,8 @@ mod tests {
                 assert_eq!(0, cr.NumDirectoryParts);
                 assert_eq!(0, cr.NumDotsDirectoryParts);
                 assert_eq!(PoSl::new(0, 3), cr.EntryName);
-                assert_eq!(PoSl::new(0, 2), cr.Stem);
-                assert_eq!(PoSl::new(2, 1), cr.Extension);
+                assert_eq!(PoSl::new(0, 3), cr.Stem);
+                assert_eq!(PoSl::new(3, 0), cr.Extension);
                 assert!(cr.FirstInvalid.is_empty());
 
                 assert_eq!("a..", cr.Input.substring_of(path));
@@ -996,6 +1233,8 @@ mod tests {
                 assert_eq!("", cr.Root.substring_of(path));
                 assert_eq!("", cr.Directory.substring_of(path));
                 assert_eq!("a..", cr.EntryName.substring_of(path));
+                assert_eq!("a..", cr.Stem.substring_of(path));
+                assert_eq!("", cr.Extension.substring_of(path));
             }
 
             {
@@ -1014,8 +1253,8 @@ mod tests {
                 assert_eq!(0, cr.NumDirectoryParts);
                 assert_eq!(0, cr.NumDotsDirectoryParts);
                 assert_eq!(PoSl::new(0, 3), cr.EntryName);
-                assert_eq!(PoSl::new(0, 2), cr.Stem);
-                assert_eq!(PoSl::new(2, 1), cr.Extension);
+                assert_eq!(PoSl::new(0, 3), cr.Stem);
+                assert_eq!(PoSl::new(3, 0), cr.Extension);
                 assert!(cr.FirstInvalid.is_empty());
 
                 assert_eq!("...", cr.Input.substring_of(path));
@@ -1024,6 +1263,8 @@ mod tests {
                 assert_eq!("", cr.Root.substring_of(path));
                 assert_eq!("", cr.Directory.substring_of(path));
                 assert_eq!("...", cr.EntryName.substring_of(path));
+                assert_eq!("...", cr.Stem.substring_of(path));
+                assert_eq!("", cr.Extension.substring_of(path));
             }
         }
 
@@ -1257,6 +1498,52 @@ mod tests {
             assert_eq!(0, cr.NumDirectoryParts);
             assert_eq!(0, cr.NumDotsDirectoryParts);
             assert_eq!(PoSl::new(0, 3), cr.EntryName);
+            assert_eq!(PoSl::new(0, 3), cr.Stem);
+            assert_eq!(PoSl::new(3, 0), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+        }
+
+        #[test]
+        fn unix_path_classify_dotsnondots2() {
+            let path = "....";
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
+
+            assert_eq!(Classification::Relative, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 4), cr.Input);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::empty(), cr.Location);
+            assert_eq!(PoSl::empty(), cr.Root);
+            assert_eq!(PoSl::empty(), cr.Directory);
+            assert_eq!(0, cr.NumDirectoryParts);
+            assert_eq!(0, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(0, 4), cr.EntryName);
+            assert_eq!(PoSl::new(0, 4), cr.Stem);
+            assert_eq!(PoSl::new(4, 0), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+        }
+
+        #[test]
+        fn unix_path_classify_root() {
+            let path = "/";
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
+
+            assert_eq!(Classification::SlashRooted, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 1), cr.Input);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::new(0, 1), cr.Location);
+            assert_eq!(PoSl::new(0, 1), cr.Root);
+            assert_eq!(PoSl::new(1, 0), cr.Directory);
+            assert_eq!(0, cr.NumDirectoryParts);
+            assert_eq!(0, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(1, 0), cr.EntryName);
+            assert_eq!(PoSl::new(1, 0), cr.Stem);
+            assert_eq!(PoSl::new(1, 0), cr.Extension);
             assert!(cr.FirstInvalid.is_empty());
         }
 
@@ -1272,9 +1559,9 @@ mod tests {
             assert_eq!(PoSl::new(0, 21), cr.Input);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 13), cr.Location);
-            assert_eq!(PoSl::empty(), cr.Root);
-            assert_eq!(PoSl::new(0, 13), cr.Directory);
-            assert_eq!(3, cr.NumDirectoryParts);
+            assert_eq!(PoSl::new(0, 1), cr.Root);
+            assert_eq!(PoSl::new(1, 12), cr.Directory);
+            assert_eq!(2, cr.NumDirectoryParts);
             assert_eq!(0, cr.NumDotsDirectoryParts);
             assert_eq!(PoSl::new(13, 8), cr.EntryName);
             assert_eq!(PoSl::new(13, 4), cr.Stem);
@@ -1284,17 +1571,48 @@ mod tests {
             assert_eq!("/dir/sub-dir/file.ext", cr.Input.substring_of(path));
             assert_eq!("", cr.Prefix.substring_of(path));
             assert_eq!("/dir/sub-dir/", cr.Location.substring_of(path));
-            assert_eq!("", cr.Root.substring_of(path));
-            assert_eq!("/dir/sub-dir/", cr.Directory.substring_of(path));
+            assert_eq!("/", cr.Root.substring_of(path));
+            assert_eq!("dir/sub-dir/", cr.Directory.substring_of(path));
             assert_eq!("file.ext", cr.EntryName.substring_of(path));
             assert_eq!("file", cr.Stem.substring_of(path));
             assert_eq!(".ext", cr.Extension.substring_of(path));
         }
 
         #[test]
-        fn unix_path_classify_home_path() {
+        fn unix_path_classify_home_path_without_RECOGNISE_TILDE_HOME() {
             let path = "~/dir/sub-dir/file.ext";
-            let parse_flags : i32 = 0;
+            let parse_flags = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
+
+            assert_eq!(Classification::Relative, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 22), cr.Input);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::new(0, 14), cr.Location);
+            assert_eq!(PoSl::empty(), cr.Root);
+            assert_eq!(PoSl::new(0, 14), cr.Directory);
+            assert_eq!(3, cr.NumDirectoryParts);
+            assert_eq!(0, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(14, 8), cr.EntryName);
+            assert_eq!(PoSl::new(14, 4), cr.Stem);
+            assert_eq!(PoSl::new(18, 4), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+
+            assert_eq!("~/dir/sub-dir/file.ext", cr.Input.substring_of(path));
+            assert_eq!("", cr.Prefix.substring_of(path));
+            assert_eq!("~/dir/sub-dir/", cr.Location.substring_of(path));
+            assert_eq!("", cr.Root.substring_of(path));
+            assert_eq!("~/dir/sub-dir/", cr.Directory.substring_of(path));
+            assert_eq!("file.ext", cr.EntryName.substring_of(path));
+            assert_eq!("file", cr.Stem.substring_of(path));
+            assert_eq!(".ext", cr.Extension.substring_of(path));
+        }
+
+        #[test]
+        fn unix_path_classify_home_path_with_RECOGNISE_TILDE_HOME() {
+            let path = "~/dir/sub-dir/file.ext";
+            let parse_flags = RECOGNISE_TILDE_HOME;
             let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::HomeRooted, cl);
@@ -1323,9 +1641,40 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_home_only() {
+        fn unix_path_classify_home_only_without_RECOGNISE_TILDE_HOME() {
             let path = "~";
-            let parse_flags : i32 = 0;
+            let parse_flags = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
+
+            assert_eq!(Classification::Relative, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 1), cr.Input);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::empty(), cr.Location);
+            assert_eq!(PoSl::empty(), cr.Root);
+            assert_eq!(PoSl::empty(), cr.Directory);
+            assert_eq!(0, cr.NumDirectoryParts);
+            assert_eq!(0, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(0, 1), cr.EntryName);
+            assert_eq!(PoSl::new(0, 1), cr.Stem);
+            assert_eq!(PoSl::new(1, 0), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+
+            assert_eq!("~", cr.Input.substring_of(path));
+            assert_eq!("", cr.Prefix.substring_of(path));
+            assert_eq!("", cr.Location.substring_of(path));
+            assert_eq!("", cr.Root.substring_of(path));
+            assert_eq!("", cr.Directory.substring_of(path));
+            assert_eq!("~", cr.EntryName.substring_of(path));
+            assert_eq!("~", cr.Stem.substring_of(path));
+            assert_eq!("", cr.Extension.substring_of(path));
+        }
+
+        #[test]
+        fn unix_path_classify_home_only_with_RECOGNISE_TILDE_HOME() {
+            let path = "~";
+            let parse_flags = RECOGNISE_TILDE_HOME;
             let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::HomeRooted, cl);
@@ -1779,9 +2128,9 @@ mod tests {
             assert_eq!(PoSl::new(0, 3), cr.Input);
             assert_eq!(PoSl::empty(), cr.Prefix);
             assert_eq!(PoSl::new(0, 3), cr.Location);
-            assert_eq!(PoSl::new(0, 2), cr.Root);
-            assert_eq!(PoSl::new(2, 1), cr.Directory);
-            assert_eq!(1, cr.NumDirectoryParts);
+            assert_eq!(PoSl::new(0, 3), cr.Root);
+            assert_eq!(PoSl::new(3, 0), cr.Directory);
+            assert_eq!(0, cr.NumDirectoryParts);
             assert_eq!(0, cr.NumDotsDirectoryParts);
             assert_eq!(PoSl::new(3, 0), cr.EntryName);
             assert_eq!(PoSl::new(3, 0), cr.Stem);
@@ -1802,9 +2151,9 @@ mod tests {
                 assert_eq!(PoSl::new(0, 21), cr.Input);
                 assert_eq!(PoSl::empty(), cr.Prefix);
                 assert_eq!(PoSl::new(0, 13), cr.Location);
-                assert_eq!(PoSl::empty(), cr.Root);
-                assert_eq!(PoSl::new(0, 13), cr.Directory);
-                assert_eq!(3, cr.NumDirectoryParts);
+                assert_eq!(PoSl::new(0, 1), cr.Root);
+                assert_eq!(PoSl::new(1, 12), cr.Directory);
+                assert_eq!(2, cr.NumDirectoryParts);
                 assert_eq!(0, cr.NumDotsDirectoryParts);
                 assert_eq!(PoSl::new(13, 8), cr.EntryName);
                 assert_eq!(PoSl::new(13, 4), cr.Stem);
@@ -1814,8 +2163,8 @@ mod tests {
                 assert_eq!("/dir/sub-dir/file.ext", cr.Input.substring_of(path));
                 assert_eq!("", cr.Prefix.substring_of(path));
                 assert_eq!("/dir/sub-dir/", cr.Location.substring_of(path));
-                assert_eq!("", cr.Root.substring_of(path));
-                assert_eq!("/dir/sub-dir/", cr.Directory.substring_of(path));
+                assert_eq!("/", cr.Root.substring_of(path));
+                assert_eq!("dir/sub-dir/", cr.Directory.substring_of(path));
                 assert_eq!("file.ext", cr.EntryName.substring_of(path));
                 assert_eq!("file", cr.Stem.substring_of(path));
                 assert_eq!(".ext", cr.Extension.substring_of(path));
@@ -1832,9 +2181,9 @@ mod tests {
                 assert_eq!(PoSl::new(0, 21), cr.Input);
                 assert_eq!(PoSl::empty(), cr.Prefix);
                 assert_eq!(PoSl::new(0, 13), cr.Location);
-                assert_eq!(PoSl::empty(), cr.Root);
-                assert_eq!(PoSl::new(0, 13), cr.Directory);
-                assert_eq!(3, cr.NumDirectoryParts);
+                assert_eq!(PoSl::new(0, 1), cr.Root);
+                assert_eq!(PoSl::new(1, 12), cr.Directory);
+                assert_eq!(2, cr.NumDirectoryParts);
                 assert_eq!(0, cr.NumDotsDirectoryParts);
                 assert_eq!(PoSl::new(13, 8), cr.EntryName);
                 assert_eq!(PoSl::new(13, 4), cr.Stem);
@@ -1844,8 +2193,8 @@ mod tests {
                 assert_eq!(r"\dir\sub-dir\file.ext", cr.Input.substring_of(path));
                 assert_eq!("", cr.Prefix.substring_of(path));
                 assert_eq!(r"\dir\sub-dir\", cr.Location.substring_of(path));
-                assert_eq!("", cr.Root.substring_of(path));
-                assert_eq!(r"\dir\sub-dir\", cr.Directory.substring_of(path));
+                assert_eq!(r"\", cr.Root.substring_of(path));
+                assert_eq!(r"dir\sub-dir\", cr.Directory.substring_of(path));
                 assert_eq!("file.ext", cr.EntryName.substring_of(path));
                 assert_eq!("file", cr.Stem.substring_of(path));
                 assert_eq!(".ext", cr.Extension.substring_of(path));
@@ -1865,9 +2214,9 @@ mod tests {
                 assert_eq!(PoSl::new(0, 23), cr.Input);
                 assert_eq!(PoSl::empty(), cr.Prefix);
                 assert_eq!(PoSl::new(0, 15), cr.Location);
-                assert_eq!(PoSl::new(0, 2), cr.Root);
-                assert_eq!(PoSl::new(2, 13), cr.Directory);
-                assert_eq!(3, cr.NumDirectoryParts);
+                assert_eq!(PoSl::new(0, 3), cr.Root);
+                assert_eq!(PoSl::new(3, 12), cr.Directory);
+                assert_eq!(2, cr.NumDirectoryParts);
                 assert_eq!(0, cr.NumDotsDirectoryParts);
                 assert_eq!(PoSl::new(15, 8), cr.EntryName);
                 assert_eq!(PoSl::new(15, 4), cr.Stem);
@@ -1877,8 +2226,8 @@ mod tests {
                 assert_eq!("C:/dir/sub-dir/file.ext", cr.Input.substring_of(path));
                 assert_eq!("", cr.Prefix.substring_of(path));
                 assert_eq!("C:/dir/sub-dir/", cr.Location.substring_of(path));
-                assert_eq!("C:", cr.Root.substring_of(path));
-                assert_eq!("/dir/sub-dir/", cr.Directory.substring_of(path));
+                assert_eq!("C:/", cr.Root.substring_of(path));
+                assert_eq!("dir/sub-dir/", cr.Directory.substring_of(path));
                 assert_eq!("file.ext", cr.EntryName.substring_of(path));
                 assert_eq!("file", cr.Stem.substring_of(path));
                 assert_eq!(".ext", cr.Extension.substring_of(path));
@@ -1895,9 +2244,9 @@ mod tests {
                 assert_eq!(PoSl::new(0, 23), cr.Input);
                 assert_eq!(PoSl::empty(), cr.Prefix);
                 assert_eq!(PoSl::new(0, 15), cr.Location);
-                assert_eq!(PoSl::new(0, 2), cr.Root);
-                assert_eq!(PoSl::new(2, 13), cr.Directory);
-                assert_eq!(3, cr.NumDirectoryParts);
+                assert_eq!(PoSl::new(0, 3), cr.Root);
+                assert_eq!(PoSl::new(3, 12), cr.Directory);
+                assert_eq!(2, cr.NumDirectoryParts);
                 assert_eq!(0, cr.NumDotsDirectoryParts);
                 assert_eq!(PoSl::new(15, 8), cr.EntryName);
                 assert_eq!(PoSl::new(15, 4), cr.Stem);
@@ -1907,8 +2256,8 @@ mod tests {
                 assert_eq!(r"C:\dir\sub-dir\file.ext", cr.Input.substring_of(path));
                 assert_eq!("", cr.Prefix.substring_of(path));
                 assert_eq!(r"C:\dir\sub-dir\", cr.Location.substring_of(path));
-                assert_eq!("C:", cr.Root.substring_of(path));
-                assert_eq!(r"\dir\sub-dir\", cr.Directory.substring_of(path));
+                assert_eq!(r"C:\", cr.Root.substring_of(path));
+                assert_eq!(r"dir\sub-dir\", cr.Directory.substring_of(path));
                 assert_eq!("file.ext", cr.EntryName.substring_of(path));
                 assert_eq!("file", cr.Stem.substring_of(path));
                 assert_eq!(".ext", cr.Extension.substring_of(path));
@@ -1979,9 +2328,9 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_home_path() {
+        fn windows_path_classify_home_path_with_RECOGNISE_TILDE_HOME() {
             let path = "~/dir/sub-dir/file.ext";
-            let parse_flags : i32 = 0;
+            let parse_flags = RECOGNISE_TILDE_HOME;
             let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::HomeRooted, cl);
@@ -2010,9 +2359,40 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_home_only() {
+        fn windows_path_classify_home_path_without_RECOGNISE_TILDE_HOME() {
+            let path = "~/dir/sub-dir/file.ext";
+            let parse_flags = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
+
+            assert_eq!(Classification::Relative, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 22), cr.Input);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::new(0, 14), cr.Location);
+            assert_eq!(PoSl::empty(), cr.Root);
+            assert_eq!(PoSl::new(0, 14), cr.Directory);
+            assert_eq!(3, cr.NumDirectoryParts);
+            assert_eq!(0, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(14, 8), cr.EntryName);
+            assert_eq!(PoSl::new(14, 4), cr.Stem);
+            assert_eq!(PoSl::new(18, 4), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+
+            assert_eq!("~/dir/sub-dir/file.ext", cr.Input.substring_of(path));
+            assert_eq!("", cr.Prefix.substring_of(path));
+            assert_eq!("~/dir/sub-dir/", cr.Location.substring_of(path));
+            assert_eq!("", cr.Root.substring_of(path));
+            assert_eq!("~/dir/sub-dir/", cr.Directory.substring_of(path));
+            assert_eq!("file.ext", cr.EntryName.substring_of(path));
+            assert_eq!("file", cr.Stem.substring_of(path));
+            assert_eq!(".ext", cr.Extension.substring_of(path));
+        }
+
+        #[test]
+        fn windows_path_classify_home_only_with_RECOGNISE_TILDE_HOME() {
             let path = "~";
-            let parse_flags : i32 = 0;
+            let parse_flags = RECOGNISE_TILDE_HOME;
             let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::HomeRooted, cl);
@@ -2037,6 +2417,37 @@ mod tests {
             assert_eq!("", cr.Directory.substring_of(path));
             assert_eq!("", cr.EntryName.substring_of(path));
             assert_eq!("", cr.Stem.substring_of(path));
+            assert_eq!("", cr.Extension.substring_of(path));
+        }
+
+        #[test]
+        fn windows_path_classify_home_only_without_RECOGNISE_TILDE_HOME() {
+            let path = "~";
+            let parse_flags = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
+
+            assert_eq!(Classification::Relative, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 1), cr.Input);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::empty(), cr.Location);
+            assert_eq!(PoSl::empty(), cr.Root);
+            assert_eq!(PoSl::empty(), cr.Directory);
+            assert_eq!(0, cr.NumDirectoryParts);
+            assert_eq!(0, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(0, 1), cr.EntryName);
+            assert_eq!(PoSl::new(0, 1), cr.Stem);
+            assert_eq!(PoSl::new(1, 0), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+
+            assert_eq!("~", cr.Input.substring_of(path));
+            assert_eq!("", cr.Prefix.substring_of(path));
+            assert_eq!("", cr.Location.substring_of(path));
+            assert_eq!("", cr.Root.substring_of(path));
+            assert_eq!("", cr.Directory.substring_of(path));
+            assert_eq!("~", cr.EntryName.substring_of(path));
+            assert_eq!("~", cr.Stem.substring_of(path));
             assert_eq!("", cr.Extension.substring_of(path));
         }
     }
