@@ -420,13 +420,13 @@ pub mod libpath {
 
                 #[test]
                 fn TEST_char_is_path_name_separator__1() {
-                    assert!(char_is_path_name_separator_('/'));
                     assert!(!char_is_path_name_separator_('\\'));
+                    assert!(char_is_path_name_separator_('/'));
 
-                    assert!(!char_is_path_name_separator_('a'));
+                    assert!(!char_is_path_name_separator_('-'));
                     assert!(!char_is_path_name_separator_(':'));
                     assert!(!char_is_path_name_separator_(';'));
-                    assert!(!char_is_path_name_separator_('-'));
+                    assert!(!char_is_path_name_separator_('a'));
                 }
 
                 #[test]
@@ -871,16 +871,16 @@ pub mod libpath {
 
                 #[test]
                 fn TEST_char_is_drive_letter__1() {
-                    assert!(char_is_drive_letter_('a'));
                     assert!(char_is_drive_letter_('A'));
-                    assert!(char_is_drive_letter_('c'));
                     assert!(char_is_drive_letter_('C'));
-                    assert!(char_is_drive_letter_('z'));
                     assert!(char_is_drive_letter_('Z'));
+                    assert!(char_is_drive_letter_('a'));
+                    assert!(char_is_drive_letter_('c'));
+                    assert!(char_is_drive_letter_('z'));
 
-                    assert!(!char_is_drive_letter_(':'));
-                    assert!(!char_is_drive_letter_('/'));
                     assert!(!char_is_drive_letter_('.'));
+                    assert!(!char_is_drive_letter_('/'));
+                    assert!(!char_is_drive_letter_(':'));
                 }
 
                 #[test]
@@ -888,10 +888,10 @@ pub mod libpath {
                     assert!(char_is_path_name_separator_('/'));
                     assert!(char_is_path_name_separator_('\\'));
 
-                    assert!(!char_is_path_name_separator_('a'));
+                    assert!(!char_is_path_name_separator_('-'));
                     assert!(!char_is_path_name_separator_(':'));
                     assert!(!char_is_path_name_separator_(';'));
-                    assert!(!char_is_path_name_separator_('-'));
+                    assert!(!char_is_path_name_separator_('a'));
                 }
 
                 #[test]
@@ -2838,3 +2838,4 @@ mod tests {
 
 
 /* ///////////////////////////// end of file //////////////////////////// */
+
