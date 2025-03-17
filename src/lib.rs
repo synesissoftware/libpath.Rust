@@ -440,15 +440,17 @@ pub mod libpath {
 
 
                 #[test]
-                fn TEST_char_is_drive_letter__1() {
-                }
-
-                #[test]
-                fn TEST_char_is_invalid_in_entryname__1() {
-                }
-
-                #[test]
                 fn TEST_char_is_invalid_in_path__1() {
+                    assert!(char_is_invalid_in_path_('<'));
+                    assert!(char_is_invalid_in_path_('>'));
+                    assert!(char_is_invalid_in_path_('|'));
+
+                    assert!(!char_is_invalid_in_path_('-'));
+                    assert!(!char_is_invalid_in_path_('/'));
+                    assert!(!char_is_invalid_in_path_(':'));
+                    assert!(!char_is_invalid_in_path_(';'));
+                    assert!(!char_is_invalid_in_path_('\\'));
+                    assert!(!char_is_invalid_in_path_('a'));
                 }
 
                 #[test]
@@ -962,11 +964,17 @@ pub mod libpath {
                 }
 
                 #[test]
-                fn TEST_char_is_invalid_in_entryname__1() {
-                }
-
-                #[test]
                 fn TEST_char_is_invalid_in_path__1() {
+                    assert!(char_is_invalid_in_path_('<'));
+                    assert!(char_is_invalid_in_path_('>'));
+                    assert!(char_is_invalid_in_path_('|'));
+
+                    assert!(!char_is_invalid_in_path_('-'));
+                    assert!(!char_is_invalid_in_path_('/'));
+                    assert!(!char_is_invalid_in_path_(':'));
+                    assert!(!char_is_invalid_in_path_(';'));
+                    assert!(!char_is_invalid_in_path_('\\'));
+                    assert!(!char_is_invalid_in_path_('a'));
                 }
 
                 #[test]
