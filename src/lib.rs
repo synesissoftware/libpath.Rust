@@ -267,7 +267,7 @@ pub mod libpath {
                 for c in path.chars() {
                     ix += 1;
 
-                    if char_is_bad_in_all_contexts_(c) {
+                    if char_is_invalid_in_path_(c) {
                         return (
                             // argument list:
                             Classification::InvalidChars,
@@ -341,8 +341,32 @@ pub mod libpath {
                 )
             }
 
-            fn char_is_bad_in_all_contexts_(c : char) -> bool {
+            /// Evaluates whether a character is invalid in a path entry
+            /// name.
+            /*
+            fn char_is_invalid_in_entryname_(c : char) -> bool {
                 match c {
+                    // On all Unix, by definition, the character '/' is invalid.
+                    '/' => true,
+                    // On macOS (through observation), the additional character
+                    // values in the range 128-255 is invalid.
+                    '\u{0080}'..='\u{00ff}' => true,
+
+                    _ => false,
+                }
+            }
+             */
+
+            /// Evaluates whether a character is invalid in a path.
+            fn char_is_invalid_in_path_(c : char) -> bool {
+                match c {
+                    // On macOS (through observation), the additional character
+                    // values in the range 128-255 is invalid.
+                    '\u{0080}'..='\u{00ff}' => true,
+                    '*' => true,
+                    '<' => true,
+                    '>' => true,
+                    '?' => true,
                     '|' => true,
 
                     _ => false,
@@ -419,9 +443,17 @@ pub mod libpath {
                 }
 
                 #[test]
+                fn TEST_char_is_invalid_in_entryname__1() {
+                }
+
+                #[test]
+                fn TEST_char_is_invalid_in_path__1() {
+                }
+
+                #[test]
                 fn TEST_char_is_path_name_separator__1() {
-                    assert!(!char_is_path_name_separator_('\\'));
                     assert!(char_is_path_name_separator_('/'));
+                    assert!(!char_is_path_name_separator_('\\'));
 
                     assert!(!char_is_path_name_separator_('-'));
                     assert!(!char_is_path_name_separator_(':'));
@@ -663,6 +695,16 @@ pub mod libpath {
                         _ => (),
                     }
 
+                    if char_is_invalid_in_path_(c) {
+                        return (
+                            // argument list:
+                            Classification::InvalidChars,
+                            PoSl::empty(),
+                            PoSl::empty(),
+                            Some(ix as usize),
+                        );
+                    }
+
                     if 0 == ix {
                         if '/' == c {
                             return (
@@ -769,6 +811,41 @@ pub mod libpath {
                     PoSl::new(0, path.len()),
                     None,
                 )
+            }
+
+            /// Evaluates whether a character is invalid in a path entry
+            /// name.
+            /*
+            fn char_is_invalid_in_entryname_(c : char) -> bool {
+                match c {
+                    '\u{0001}'..='\u{001f}' => true,
+                    '"' => true,
+                    '*' => true,
+                    '/' => true,
+                    '<' => true,
+                    '>' => true,
+                    '?' => true,
+                    '\\' => true,
+                    '|' => true,
+
+                    _ => false,
+                }
+            }
+             */
+
+            /// Evaluates whether a character is invalid in a path.
+            fn char_is_invalid_in_path_(c : char) -> bool {
+                match c {
+                    '\u{0001}'..='\u{001f}' => true,
+                    '"' => true,
+                    '*' => true,
+                    '<' => true,
+                    '>' => true,
+                    '?' => true,
+                    '|' => true,
+
+                    _ => false,
+                }
             }
 
             fn char_is_path_name_separator_(c : char) -> bool {
@@ -884,6 +961,14 @@ pub mod libpath {
                 }
 
                 #[test]
+                fn TEST_char_is_invalid_in_entryname__1() {
+                }
+
+                #[test]
+                fn TEST_char_is_invalid_in_path__1() {
+                }
+
+                #[test]
                 fn TEST_char_is_path_name_separator__1() {
                     assert!(char_is_path_name_separator_('/'));
                     assert!(char_is_path_name_separator_('\\'));
@@ -930,8 +1015,8 @@ pub mod libpath {
                         ("~a/", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 3), None),
                         ("~a/", classification_flags::RECOGNISE_TILDE_HOME, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 3), None),
 
-                        // ("|a", 0, Classification::InvalidChars, PoSl::empty(), PoSl::empty(), Some(0)),
-                        ("a|", 0, Classification::Relative, PoSl::empty(), PoSl::new(0, 2), None),
+                        ("|a", 0, Classification::InvalidChars, PoSl::empty(), PoSl::empty(), Some(0)),
+                        ("a|", 0, Classification::InvalidChars, PoSl::empty(), PoSl::empty(), Some(1)),
                     ];
 
                     for (
