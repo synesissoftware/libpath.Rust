@@ -2380,7 +2380,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_root() {
+        fn windows_path_classify_drive_root() {
             let path = "C:/";
             let parse_flags : i32 = 0;
             let (cl, cr) = path_classify(path, parse_flags);
