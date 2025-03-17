@@ -12,6 +12,7 @@
 * [ ] Rename `ClassificationResult` to `PathDescriptor`;
 * [x] Rename `ClassificationResult#Entry` to `#EntryName`;
 * [ ] Remove `ClassificationResult#FirstInvalid` and use in function calls;
+* [ ] Correct handling of entry-names with trailing `'.'` character(s);
 * [ ] Add trait `Path` that provides access to elements (as `&str`, etc.);
 * [ ] Implement `IGNORE_SLASH_RUNS`;
 * [ ] Implement `IGNORE_INVALID_CHARS`;
