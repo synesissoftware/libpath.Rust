@@ -409,22 +409,17 @@ pub mod libpath {
             mod tests {
                 #![allow(non_snake_case)]
 
-                use super::{
-                    classification_flags,
-                    classify_root_,
-                    count_parts_,
-                    Classification,
-                };
+                use super::*;
 
                 use fastparse::fastparse::types::PositionalSlice as PoSl;
 
 
                 #[test]
-                fn char_is_drive_letter__1() {
+                fn TEST_char_is_drive_letter__1() {
                 }
 
                 #[test]
-                fn char_is_path_name_separator__1() {
+                fn TEST_char_is_path_name_separator__1() {
 /*
                     assert!(char_is_path_name_separator_('/'));
                     assert!(!char_is_path_name_separator_('\\'));
@@ -437,7 +432,7 @@ pub mod libpath {
                 }
 
                 #[test]
-                fn classify_root__1() {
+                fn TEST_classify_root__1() {
                     let test_criteria = &[
                         ("dir", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 3), None),
                         ("file.ext", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 8), None),
@@ -480,7 +475,7 @@ pub mod libpath {
                 }
 
                 #[test]
-                fn count_parts__1() {
+                fn TEST_count_parts__1() {
                     let test_criteria = &[
                         ("", 0, 0, 0),
                         ("a", 0, 0, 0),
@@ -513,7 +508,7 @@ pub mod libpath {
                 }
 
                 #[test]
-                fn find_last_slash__1() {
+                fn TEST_find_last_slash__1() {
                 }
             }
         }
@@ -872,20 +867,13 @@ pub mod libpath {
             mod tests {
                 #![allow(non_snake_case)]
 
-                use super::{
-                    char_is_drive_letter_,
-                    char_is_path_name_separator_,
-                    classification_flags,
-                    classify_root_,
-                    count_parts_,
-                    Classification,
-                };
+                use super::*;
 
                 use fastparse::fastparse::types::PositionalSlice as PoSl;
 
 
                 #[test]
-                fn char_is_drive_letter__1() {
+                fn TEST_char_is_drive_letter__1() {
                     assert!(char_is_drive_letter_('a'));
                     assert!(char_is_drive_letter_('A'));
                     assert!(char_is_drive_letter_('c'));
@@ -899,7 +887,7 @@ pub mod libpath {
                 }
 
                 #[test]
-                fn char_is_path_name_separator__1() {
+                fn TEST_char_is_path_name_separator__1() {
                     assert!(char_is_path_name_separator_('/'));
                     assert!(char_is_path_name_separator_('\\'));
 
@@ -910,7 +898,7 @@ pub mod libpath {
                 }
 
                 #[test]
-                fn classify_root__1() {
+                fn TEST_classify_root__1() {
                     let test_criteria = &[
                         (r"abc", 0, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 3), None),
 
@@ -969,7 +957,7 @@ pub mod libpath {
                 }
 
                 #[test]
-                fn count_parts__1() {
+                fn TEST_count_parts__1() {
                     let test_criteria = &[
                         (r"", 0, 0, 0),
                         (r"a", 0, 0, 0),
@@ -1023,7 +1011,7 @@ pub mod libpath {
                 }
 
                 #[test]
-                fn find_last_slash__1() {
+                fn TEST_find_last_slash__1() {
                 }
             }
         }
@@ -1051,7 +1039,7 @@ mod tests {
 
 
         #[test]
-        fn unix_path_classify_empty() {
+        fn TEST_path_classify_WITH_EMPTY_INPUT() {
             let flag_max = 0 | IGNORE_SLASH_RUNS | IGNORE_INVALID_CHARS | RECOGNISE_TILDE_HOME;
 
             for flags in 0..=flag_max {
@@ -1064,7 +1052,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_entryname_only() {
+        fn TEST_path_classify_WITH_EntryName_ONLY() {
             {
                 let path = "name.ext";
                 let parse_flags : i32 = 0;
@@ -1247,7 +1235,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_rel_dir_and_entryname() {
+        fn TEST_path_classify_WITH_RELATIVE_Directory_AND_EntryName() {
             let path = "dir/name.ext";
             let parse_flags : i32 = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -1278,7 +1266,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_rel_dir_only() {
+        fn TEST_path_classify_WITH_RELATIVE_Directory_ONLY() {
             {
                 let path = "dir/";
                 let parse_flags : i32 = 0;
@@ -1461,7 +1449,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_dots1_only() {
+        fn TEST_path_classify_WITH_DOTS1_ONLY_INTERPRETED_AS_Stem() {
             let path = ".";
             let parse_flags : i32 = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -1492,7 +1480,7 @@ mod tests {
     }
 
         #[test]
-        fn unix_path_classify_dots2_only() {
+        fn TEST_path_classify_WITH_DOTS2_ONLY_INTERPRETED_AS_Stem() {
             let path = "..";
             let parse_flags : i32 = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -1523,7 +1511,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_dotsnondots1() {
+        fn TEST_path_classify_WITH_DOTS3_ONLY_INTERPRETED_AS_Stem() {
             let path = "...";
             let parse_flags : i32 = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -1554,7 +1542,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_dotsnondots2() {
+        fn TEST_path_classify_WITH_DOTS4_ONLY_INTERPRETED_AS_Stem() {
             let path = "....";
             let parse_flags : i32 = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -1585,7 +1573,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_root() {
+        fn TEST_path_classify_WITH_SLASH_ROOT_ONLY() {
             let path = "/";
             let parse_flags : i32 = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -1616,7 +1604,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_slashrooted_path() {
+        fn TEST_path_classify_WITH_SLASHROOTED_PATH() {
             let path = "/dir/sub-dir/file.ext";
             let parse_flags : i32 = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -1647,7 +1635,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_home_path_without_RECOGNISE_TILDE_HOME() {
+        fn TEST_path_classify_WITH_HomeRooted_PATH_WITHOUT__RECOGNISE_TILDE_HOME() {
             let path = "~/dir/sub-dir/file.ext";
             let parse_flags = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -1678,7 +1666,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_home_path_with_RECOGNISE_TILDE_HOME() {
+        fn TEST_path_classify_WITH_HomeRooted_PATH_WITH__RECOGNISE_TILDE_HOME() {
             let path = "~/dir/sub-dir/file.ext";
             let parse_flags = RECOGNISE_TILDE_HOME;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -1709,7 +1697,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_home_only_without_RECOGNISE_TILDE_HOME() {
+        fn TEST_path_classify_WITH_HOME_ONLY_WITHOUT__RECOGNISE_TILDE_HOME() {
             let path = "~";
             let parse_flags = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -1740,7 +1728,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_home_only_with_RECOGNISE_TILDE_HOME() {
+        fn TEST_path_classify_WITH_HOME_ONLY_WITH__RECOGNISE_TILDE_HOME() {
             let path = "~";
             let parse_flags = RECOGNISE_TILDE_HOME;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -1785,7 +1773,7 @@ mod tests {
 
 
         #[test]
-        fn windows_path_classify_empty() {
+        fn TEST_path_classify_WITH_EMPTY_INPUT() {
             let flag_max =
                 0 | IGNORE_SLASH_RUNS | IGNORE_INVALID_CHARS | RECOGNISE_TILDE_HOME | IGNORE_INVALID_CHARS_IN_LONG_PATH;
 
@@ -1799,7 +1787,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_entryname_only() {
+        fn TEST_path_classify_WITH_EntryName_ONLY() {
             {
                 let path = "name.ext";
                 let parse_flags : i32 = 0;
@@ -1982,7 +1970,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_rel_dir_and_entryname() {
+        fn TEST_path_classify_WITH_RELATIVE_Directory_AND_EntryName() {
             {
                 let path = "dir/name.ext";
                 let parse_flags : i32 = 0;
@@ -2045,7 +2033,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_rel_dir_only() {
+        fn TEST_path_classify_WITH_RELATIVE_Directory_ONLY() {
             {
                 let path = "dir/";
                 let parse_flags : i32 = 0;
@@ -2318,7 +2306,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_dots1_only() {
+        fn TEST_path_classify_WITH_DOTS1_ONLY_INTERPRETED_AS_Stem() {
             let path = ".";
             let parse_flags : i32 = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -2349,7 +2337,7 @@ mod tests {
     }
 
         #[test]
-        fn windows_path_classify_dots2_only() {
+        fn TEST_path_classify_WITH_DOTS2_ONLY_INTERPRETED_AS_Stem() {
             let path = "..";
             let parse_flags : i32 = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -2380,7 +2368,69 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_drive_root() {
+        fn TEST_path_classify_WITH_DOTS3_ONLY_INTERPRETED_AS_Stem() {
+            let path = "...";
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
+
+            assert_eq!(Classification::Relative, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 3), cr.Input);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::empty(), cr.Location);
+            assert_eq!(PoSl::empty(), cr.Root);
+            assert_eq!(PoSl::empty(), cr.Directory);
+            assert_eq!(0, cr.NumDirectoryParts);
+            assert_eq!(0, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(0, 3), cr.EntryName);
+            assert_eq!(PoSl::new(0, 3), cr.Stem);
+            assert_eq!(PoSl::new(3, 0), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+
+            assert_eq!("...", cr.Input.substring_of(path));
+            assert_eq!("", cr.Prefix.substring_of(path));
+            assert_eq!("", cr.Location.substring_of(path));
+            assert_eq!("", cr.Root.substring_of(path));
+            assert_eq!("", cr.Directory.substring_of(path));
+            assert_eq!("...", cr.EntryName.substring_of(path));
+            assert_eq!("...", cr.Stem.substring_of(path));
+            assert_eq!("", cr.Extension.substring_of(path));
+        }
+
+        #[test]
+        fn TEST_path_classify_WITH_DOTS4_ONLY_INTERPRETED_AS_Stem() {
+            let path = "....";
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
+
+            assert_eq!(Classification::Relative, cl);
+
+            assert_ne!(ClassificationResult::empty(), cr);
+            assert_eq!(PoSl::new(0, 4), cr.Input);
+            assert_eq!(PoSl::empty(), cr.Prefix);
+            assert_eq!(PoSl::empty(), cr.Location);
+            assert_eq!(PoSl::empty(), cr.Root);
+            assert_eq!(PoSl::empty(), cr.Directory);
+            assert_eq!(0, cr.NumDirectoryParts);
+            assert_eq!(0, cr.NumDotsDirectoryParts);
+            assert_eq!(PoSl::new(0, 4), cr.EntryName);
+            assert_eq!(PoSl::new(0, 4), cr.Stem);
+            assert_eq!(PoSl::new(4, 0), cr.Extension);
+            assert!(cr.FirstInvalid.is_empty());
+
+            assert_eq!("....", cr.Input.substring_of(path));
+            assert_eq!("", cr.Prefix.substring_of(path));
+            assert_eq!("", cr.Location.substring_of(path));
+            assert_eq!("", cr.Root.substring_of(path));
+            assert_eq!("", cr.Directory.substring_of(path));
+            assert_eq!("....", cr.EntryName.substring_of(path));
+            assert_eq!("....", cr.Stem.substring_of(path));
+            assert_eq!("", cr.Extension.substring_of(path));
+        }
+
+        #[test]
+        fn TEST_path_classify_WITH_DRIVE_ROOT_ONLY() {
             let path = "C:/";
             let parse_flags : i32 = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -2411,7 +2461,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_slashrooted_path() {
+        fn TEST_path_classify_WITH_SLASHROOTED_PATH() {
             {
                 let path = "/dir/sub-dir/file.ext";
                 let parse_flags : i32 = 0;
@@ -2474,7 +2524,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_driverooted_path() {
+        fn TEST_path_classify_WITH_DriveLetterRooted_PATH() {
             {
                 let path = "C:/dir/sub-dir/file.ext";
                 let parse_flags : i32 = 0;
@@ -2537,7 +2587,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_driverelative_path() {
+        fn TEST_path_classify_WITH_DriveLetterRelative_PATH() {
             {
                 let path = "C:dir/sub-dir/file.ext";
                 let parse_flags : i32 = 0;
@@ -2600,7 +2650,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_home_path_with_RECOGNISE_TILDE_HOME() {
+        fn TEST_path_classify_WITH_HomeRooted_PATH_WITH__RECOGNISE_TILDE_HOME() {
             let path = "~/dir/sub-dir/file.ext";
             let parse_flags = RECOGNISE_TILDE_HOME;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -2631,7 +2681,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_home_path_without_RECOGNISE_TILDE_HOME() {
+        fn TEST_path_classify_WITH_HomeRooted_PATH_WITHOUT__RECOGNISE_TILDE_HOME() {
             let path = "~/dir/sub-dir/file.ext";
             let parse_flags = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -2662,7 +2712,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_home_only_with_RECOGNISE_TILDE_HOME() {
+        fn TEST_path_classify_WITH_HOME_ONLY_WITH__RECOGNISE_TILDE_HOME() {
             let path = "~";
             let parse_flags = RECOGNISE_TILDE_HOME;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -2693,7 +2743,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_home_only_without_RECOGNISE_TILDE_HOME() {
+        fn TEST_path_classify_WITH_HOME_ONLY_WITHOUT__RECOGNISE_TILDE_HOME() {
             let path = "~";
             let parse_flags = 0;
             let (cl, cr) = path_classify(path, parse_flags);
