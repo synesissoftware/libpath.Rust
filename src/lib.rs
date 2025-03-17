@@ -2463,33 +2463,65 @@ mod tests {
 
         #[test]
         fn TEST_path_classify_WITH_DRIVE_ROOT_ONLY() {
-            let path = "C:/";
-            let parse_flags : i32 = 0;
-            let (cl, cr) = path_classify(path, parse_flags);
+            {
+                let path = r"C:\";
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
-            assert_eq!(Classification::DriveLetterRooted, cl);
+                assert_eq!(Classification::DriveLetterRooted, cl);
 
-            assert_ne!(ClassificationResult::empty(), cr);
-            assert_eq!(PoSl::new(0, 3), cr.Input);
-            assert_eq!(PoSl::empty(), cr.Prefix);
-            assert_eq!(PoSl::new(0, 3), cr.Location);
-            assert_eq!(PoSl::new(0, 3), cr.Root);
-            assert_eq!(PoSl::new(3, 0), cr.Directory);
-            assert_eq!(0, cr.NumDirectoryParts);
-            assert_eq!(0, cr.NumDotsDirectoryParts);
-            assert_eq!(PoSl::new(3, 0), cr.EntryName);
-            assert_eq!(PoSl::new(3, 0), cr.Stem);
-            assert_eq!(PoSl::new(3, 0), cr.Extension);
-            assert!(cr.FirstInvalid.is_empty());
+                assert_ne!(ClassificationResult::empty(), cr);
+                assert_eq!(PoSl::new(0, 3), cr.Input);
+                assert_eq!(PoSl::empty(), cr.Prefix);
+                assert_eq!(PoSl::new(0, 3), cr.Location);
+                assert_eq!(PoSl::new(0, 3), cr.Root);
+                assert_eq!(PoSl::new(3, 0), cr.Directory);
+                assert_eq!(0, cr.NumDirectoryParts);
+                assert_eq!(0, cr.NumDotsDirectoryParts);
+                assert_eq!(PoSl::new(3, 0), cr.EntryName);
+                assert_eq!(PoSl::new(3, 0), cr.Stem);
+                assert_eq!(PoSl::new(3, 0), cr.Extension);
+                assert!(cr.FirstInvalid.is_empty());
 
-            assert_eq!("C:/", cr.Input.substring_of(path));
-            assert_eq!("", cr.Prefix.substring_of(path));
-            assert_eq!("C:/", cr.Location.substring_of(path));
-            assert_eq!("C:/", cr.Root.substring_of(path));
-            assert_eq!("", cr.Directory.substring_of(path));
-            assert_eq!("", cr.EntryName.substring_of(path));
-            assert_eq!("", cr.Stem.substring_of(path));
-            assert_eq!("", cr.Extension.substring_of(path));
+                assert_eq!(r"C:\", cr.Input.substring_of(path));
+                assert_eq!("", cr.Prefix.substring_of(path));
+                assert_eq!(r"C:\", cr.Location.substring_of(path));
+                assert_eq!(r"C:\", cr.Root.substring_of(path));
+                assert_eq!("", cr.Directory.substring_of(path));
+                assert_eq!("", cr.EntryName.substring_of(path));
+                assert_eq!("", cr.Stem.substring_of(path));
+                assert_eq!("", cr.Extension.substring_of(path));
+            }
+
+            {
+                let path = "C:/";
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
+
+                assert_eq!(Classification::DriveLetterRooted, cl);
+
+                assert_ne!(ClassificationResult::empty(), cr);
+                assert_eq!(PoSl::new(0, 3), cr.Input);
+                assert_eq!(PoSl::empty(), cr.Prefix);
+                assert_eq!(PoSl::new(0, 3), cr.Location);
+                assert_eq!(PoSl::new(0, 3), cr.Root);
+                assert_eq!(PoSl::new(3, 0), cr.Directory);
+                assert_eq!(0, cr.NumDirectoryParts);
+                assert_eq!(0, cr.NumDotsDirectoryParts);
+                assert_eq!(PoSl::new(3, 0), cr.EntryName);
+                assert_eq!(PoSl::new(3, 0), cr.Stem);
+                assert_eq!(PoSl::new(3, 0), cr.Extension);
+                assert!(cr.FirstInvalid.is_empty());
+
+                assert_eq!("C:/", cr.Input.substring_of(path));
+                assert_eq!("", cr.Prefix.substring_of(path));
+                assert_eq!("C:/", cr.Location.substring_of(path));
+                assert_eq!("C:/", cr.Root.substring_of(path));
+                assert_eq!("", cr.Directory.substring_of(path));
+                assert_eq!("", cr.EntryName.substring_of(path));
+                assert_eq!("", cr.Stem.substring_of(path));
+                assert_eq!("", cr.Extension.substring_of(path));
+            }
         }
 
         #[test]
