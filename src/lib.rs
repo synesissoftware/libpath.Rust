@@ -119,7 +119,9 @@ pub mod libpath {
             mod tests {
                 #![allow(non_snake_case)]
 
+                /*
                 use super::*;
+                 */
             }
         }
 
@@ -216,11 +218,7 @@ pub mod libpath {
                     cr.Stem = cr.EntryName;
                     cr.Extension = cr.EntryName;
                 } else {
-                    let entry_s = cr.EntryName.substring_of(path);
-
-
                     let last_entry_dot = cr.EntryName.substring_of(path).rfind('.');
-
 
                     match last_entry_dot {
                         Some(index) if index + 1 < cr.EntryName.len() => {
@@ -613,11 +611,7 @@ pub mod libpath {
                     cr.Stem = cr.EntryName;
                     cr.Extension = cr.EntryName;
                 } else {
-                    let entry_s = cr.EntryName.substring_of(path);
-
-
                     let last_entry_dot = cr.EntryName.substring_of(path).rfind('.');
-
 
                     match last_entry_dot {
                         Some(index) if index + 1 < cr.EntryName.len() => {
@@ -711,7 +705,8 @@ pub mod libpath {
 
                         if '/' == c0 && '/' == c {
 
-                            ; // TODO
+                            // TODO
+                            {}
                         } else if '\\' == c0 {
 
                             return (
