@@ -613,35 +613,18 @@ pub mod libpath {
                     cr.Stem = cr.EntryName;
                     cr.Extension = cr.EntryName;
                 } else {
+                    let entry_s = cr.EntryName.substring_of(path);
+
+
                     let last_entry_dot = cr.EntryName.substring_of(path).rfind('.');
 
+
                     match last_entry_dot {
-                        Some(index) => {
-                            // handle special dots directories "." and ".."
-
-                            let mut is_dots = false;
-
-                            if !is_dots && 1 == cr.EntryName.len() {
-                                is_dots = true;
-                            }
-
-                            if !is_dots {
-                                if 2 == cr.EntryName.len() {
-                                    if ".." == cr.EntryName.substring_of(path) {
-                                        is_dots = true;
-                                    }
-                                }
-                            }
-
-                            if is_dots {
-                                cr.Stem = cr.EntryName;
-                                cr.Extension = PoSl::new(cr.EntryName.len(), 0);
-                            } else {
-                                cr.Stem = PoSl::new(cr.EntryName.offset, index);
-                                cr.Extension = PoSl::new(cr.EntryName.offset + index, cr.EntryName.len() - index);
-                            }
+                        Some(index) if index + 1 < cr.EntryName.len() => {
+                            cr.Stem = PoSl::new(cr.EntryName.offset, index);
+                            cr.Extension = PoSl::new(cr.EntryName.offset + index, cr.EntryName.len() - index);
                         },
-                        None => {
+                        _ => {
                             cr.Stem = cr.EntryName;
                             cr.Extension = PoSl::new(cr.EntryName.offset + cr.EntryName.len(), 0);
                         },
@@ -1928,8 +1911,8 @@ mod tests {
                 assert_eq!(0, cr.NumDirectoryParts);
                 assert_eq!(0, cr.NumDotsDirectoryParts);
                 assert_eq!(PoSl::new(0, 3), cr.EntryName);
-                assert_eq!(PoSl::new(0, 2), cr.Stem);
-                assert_eq!(PoSl::new(2, 1), cr.Extension);
+                assert_eq!(PoSl::new(0, 3), cr.Stem);
+                assert_eq!(PoSl::new(3, 0), cr.Extension);
                 assert!(cr.FirstInvalid.is_empty());
 
                 assert_eq!("ab.", cr.Input.substring_of(path));
@@ -1938,6 +1921,8 @@ mod tests {
                 assert_eq!("", cr.Root.substring_of(path));
                 assert_eq!("", cr.Directory.substring_of(path));
                 assert_eq!("ab.", cr.EntryName.substring_of(path));
+                assert_eq!("ab.", cr.Stem.substring_of(path));
+                assert_eq!("", cr.Extension.substring_of(path));
             }
 
             {
@@ -1956,8 +1941,8 @@ mod tests {
                 assert_eq!(0, cr.NumDirectoryParts);
                 assert_eq!(0, cr.NumDotsDirectoryParts);
                 assert_eq!(PoSl::new(0, 3), cr.EntryName);
-                assert_eq!(PoSl::new(0, 2), cr.Stem);
-                assert_eq!(PoSl::new(2, 1), cr.Extension);
+                assert_eq!(PoSl::new(0, 3), cr.Stem);
+                assert_eq!(PoSl::new(3, 0), cr.Extension);
                 assert!(cr.FirstInvalid.is_empty());
 
                 assert_eq!("a..", cr.Input.substring_of(path));
@@ -1966,6 +1951,8 @@ mod tests {
                 assert_eq!("", cr.Root.substring_of(path));
                 assert_eq!("", cr.Directory.substring_of(path));
                 assert_eq!("a..", cr.EntryName.substring_of(path));
+                assert_eq!("a..", cr.Stem.substring_of(path));
+                assert_eq!("", cr.Extension.substring_of(path));
             }
 
             {
@@ -1984,8 +1971,8 @@ mod tests {
                 assert_eq!(0, cr.NumDirectoryParts);
                 assert_eq!(0, cr.NumDotsDirectoryParts);
                 assert_eq!(PoSl::new(0, 3), cr.EntryName);
-                assert_eq!(PoSl::new(0, 2), cr.Stem);
-                assert_eq!(PoSl::new(2, 1), cr.Extension);
+                assert_eq!(PoSl::new(0, 3), cr.Stem);
+                assert_eq!(PoSl::new(3, 0), cr.Extension);
                 assert!(cr.FirstInvalid.is_empty());
 
                 assert_eq!("...", cr.Input.substring_of(path));
@@ -1994,6 +1981,8 @@ mod tests {
                 assert_eq!("", cr.Root.substring_of(path));
                 assert_eq!("", cr.Directory.substring_of(path));
                 assert_eq!("...", cr.EntryName.substring_of(path));
+                assert_eq!("...", cr.Stem.substring_of(path));
+                assert_eq!("", cr.Extension.substring_of(path));
             }
         }
 
