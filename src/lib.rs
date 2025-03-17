@@ -420,7 +420,6 @@ pub mod libpath {
 
                 #[test]
                 fn TEST_char_is_path_name_separator__1() {
-/*
                     assert!(char_is_path_name_separator_('/'));
                     assert!(!char_is_path_name_separator_('\\'));
 
@@ -428,7 +427,6 @@ pub mod libpath {
                     assert!(!char_is_path_name_separator_(':'));
                     assert!(!char_is_path_name_separator_(';'));
                     assert!(!char_is_path_name_separator_('-'));
- */
                 }
 
                 #[test]
@@ -451,7 +449,6 @@ pub mod libpath {
                         ("~a/", classification_flags::RECOGNISE_TILDE_HOME, Classification::Relative, PoSl::new(0, 0), PoSl::new(0, 3), None),
 
                         ("|a", 0, Classification::InvalidChars, PoSl::empty(), PoSl::empty(), Some(0)),
-
                         ("a|", 0, Classification::Relative, PoSl::empty(), PoSl::new(0, 2), None),
                     ];
 
