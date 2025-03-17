@@ -429,6 +429,7 @@ pub mod libpath {
                 (number_of_parts, number_of_dots_parts)
             }
 
+
             #[cfg(test)]
             mod tests {
                 #![allow(non_snake_case)]
@@ -1099,6 +1100,7 @@ pub mod libpath {
         }
     }
 }
+
 
 #[cfg(test)]
 #[allow(non_snake_case)]
