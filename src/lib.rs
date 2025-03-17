@@ -1064,7 +1064,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_entry_only() {
+        fn unix_path_classify_entryname_only() {
             {
                 let path = "name.ext";
                 let parse_flags : i32 = 0;
@@ -1247,7 +1247,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_rel_dir_and_name() {
+        fn unix_path_classify_rel_dir_and_entryname() {
             let path = "dir/name.ext";
             let parse_flags : i32 = 0;
             let (cl, cr) = path_classify(path, parse_flags);
@@ -1799,7 +1799,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_entry_only() {
+        fn windows_path_classify_entryname_only() {
             {
                 let path = "name.ext";
                 let parse_flags : i32 = 0;
@@ -1982,7 +1982,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_rel_dir_and_name() {
+        fn windows_path_classify_rel_dir_and_entryname() {
             {
                 let path = "dir/name.ext";
                 let parse_flags : i32 = 0;
