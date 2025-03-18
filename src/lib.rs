@@ -668,6 +668,10 @@ pub mod libpath {
                 parse_flags : i32,
             ) -> Vec<&'a str>
             {
+                {
+                    let _ = parse_flags;
+                }
+
                 let mut v = Vec::with_capacity(1 + path.len() / 10);
 
                 let path_bytes = path.as_bytes();
@@ -1212,8 +1216,9 @@ pub mod libpath {
 
                 #[test]
                 fn TEST_unc_split_() {
+                    // empty
                     {
-                        let input = "";
+                        let input = r"";
                         let parse_flags = 0;
                         let expected : Vec<&str> = vec![];
                         let actual = unc_split_(input, parse_flags);
@@ -1221,252 +1226,666 @@ pub mod libpath {
                         assert_eq!(expected, actual);
                     }
 
+                    // relative
                     {
-                        let input = r"C:\Test\Foo.txt";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            r"C:",
-                            r"\",
-                            r"Test",
-                            r"\",
-                            r"Foo.txt",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
+                        {
+                            let input = r"abc";
+                            let parse_flags = 0;
+                            let expected : Vec<&str> = vec![
+                                // element list:
+                                r"abc",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
 
-                        assert_eq!(expected, actual);
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"abc.def";
+                            let parse_flags = 0;
+                            let expected : Vec<&str> = vec![
+                                // element list:
+                                r"abc.def",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"directory\abc.def";
+                            let parse_flags = 0;
+                            let expected : Vec<&str> = vec![
+                                // element list:
+                                r"directory",
+                                r"\",
+                                r"abc.def",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"directory/abc.def";
+                            let parse_flags = 0;
+                            let expected : Vec<&str> = vec![
+                                // element list:
+                                r"directory",
+                                r"/",
+                                r"abc.def",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"directory\\abc.def";
+                            let parse_flags = 0;
+                            let expected : Vec<&str> = vec![
+                                // element list:
+                                r"directory",
+                                r"\\",
+                                r"abc.def",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"directory//abc.def";
+                            let parse_flags = 0;
+                            let expected : Vec<&str> = vec![
+                                // element list:
+                                r"directory",
+                                r"//",
+                                r"abc.def",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
                     }
 
+                    // slash-rooted
                     {
-                        let input = r"C:/Test/Foo.txt";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            r"C:",
-                            r"/",
-                            r"Test",
-                            r"/",
-                            r"Foo.txt",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
+                        {
+                            let input = r"\";
+                            let parse_flags = 0;
+                            let expected : Vec<&str> = vec![
+                                // element list:
+                                r"\",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
 
-                        assert_eq!(expected, actual);
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"/";
+                            let parse_flags = 0;
+                            let expected : Vec<&str> = vec![
+                                // element list:
+                                r"/",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"\abc";
+                            let parse_flags = 0;
+                            let expected : Vec<&str> = vec![
+                                // element list:
+                                r"\",
+                                r"abc",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"/abc";
+                            let parse_flags = 0;
+                            let expected : Vec<&str> = vec![
+                                // element list:
+                                r"/",
+                                r"abc",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
                     }
 
+                    // drive-rooted
                     {
-                        let input = r"C:Test\Foo.txt";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            r"C:",
-                            r"Test",
-                            r"\",
-                            r"Foo.txt",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
+                        {
+                            let input = r"C:\Test\Foo.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"C:",
+                                r"\",
+                                r"Test",
+                                r"\",
+                                r"Foo.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
 
-                        assert_eq!(expected, actual);
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"C:/Test/Foo.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"C:",
+                                r"/",
+                                r"Test",
+                                r"/",
+                                r"Foo.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"C:\\Test\\Foo.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"C:",
+                                r"\\",
+                                r"Test",
+                                r"\\",
+                                r"Foo.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"C://Test//Foo.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"C:",
+                                r"//",
+                                r"Test",
+                                r"//",
+                                r"Foo.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
                     }
 
+                    // drive-relative
                     {
-                        let input = "COM1";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            "COM1",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
+                        {
+                            let input = r"C:Test\Foo.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"C:",
+                                r"Test",
+                                r"\",
+                                r"Foo.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
 
-                        assert_eq!(expected, actual);
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"C:Test/Foo.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"C:",
+                                r"Test",
+                                r"/",
+                                r"Foo.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"C:Test\\Foo.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"C:",
+                                r"Test",
+                                r"\\",
+                                r"Foo.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"C:Test//Foo.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"C:",
+                                r"Test",
+                                r"//",
+                                r"Foo.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"C:..\File.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"C:",
+                                r"..",
+                                r"\",
+                                r"File.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
                     }
 
+                    // local device names
                     {
-                        let input = r"\\.\COM1";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            r"\\",
-                            r".",
-                            r"\",
-                            r"COM1",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
+                        {
+                            let input = r"\\.\COM1";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"\\",
+                                r".",
+                                r"\",
+                                r"COM1",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
 
-                        assert_eq!(expected, actual);
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"\\.\C:";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"\\",
+                                r".",
+                                r"\",
+                                r"C:",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"\\.\Volume{b75e2c83-0000-0000-0000-602f00000000}\Test\Foo.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"\\",
+                                r".",
+                                r"\",
+                                r"Volume{b75e2c83-0000-0000-0000-602f00000000}",
+                                r"\",
+                                r"Test",
+                                r"\",
+                                r"Foo.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"\\.\Volume{b75e2c83-0000-0000-0000-602f00000000}/Test/Foo.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"\\",
+                                r".",
+                                r"\",
+                                r"Volume{b75e2c83-0000-0000-0000-602f00000000}",
+                                r"/",
+                                r"Test",
+                                r"/",
+                                r"Foo.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
                     }
 
+                    // UNC-rooted
                     {
-                        let input = r"COM1\";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            r"COM1",
-                            r"\",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
+                        {
+                            let input = r"\\server\share\directory\stem.ext";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"\\",
+                                r"server",
+                                r"\",
+                                r"share",
+                                r"\",
+                                r"directory",
+                                r"\",
+                                r"stem.ext",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
 
-                        assert_eq!(expected, actual);
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"//server/share/directory/stem.ext";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"//",
+                                r"server",
+                                r"/",
+                                r"share",
+                                r"/",
+                                r"directory",
+                                r"/",
+                                r"stem.ext",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"\\0:0:0::1\c$\Windows\System32\notepad.exe";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"\\",
+                                r"0:0:0::1",
+                                r"\",
+                                r"c$",
+                                r"\",
+                                r"Windows",
+                                r"\",
+                                r"System32",
+                                r"\",
+                                r"notepad.exe",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
                     }
 
+                    // home-rooted
                     {
-                        let input = r"\\.\Volume{b75e2c83-0000-0000-0000-602f00000000}\Test\Foo.txt";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            r"\\",
-                            r".",
-                            r"\",
-                            r"Volume{b75e2c83-0000-0000-0000-602f00000000}",
-                            r"\",
-                            r"Test",
-                            r"\",
-                            r"Foo.txt",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
+                        {
+                            let input = r"~";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"~",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
 
-                        assert_eq!(expected, actual);
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"~\";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"~",
+                                r"\",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"~/";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"~",
+                                r"/",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"~\server\share\directory\stem.ext";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"~",
+                                r"\",
+                                r"server",
+                                r"\",
+                                r"share",
+                                r"\",
+                                r"directory",
+                                r"\",
+                                r"stem.ext",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"~/server/share/directory/stem.ext";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"~",
+                                r"/",
+                                r"server",
+                                r"/",
+                                r"share",
+                                r"/",
+                                r"directory",
+                                r"/",
+                                r"stem.ext",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"~\\server\\share\\directory\\stem.ext";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"~",
+                                r"\\",
+                                r"server",
+                                r"\\",
+                                r"share",
+                                r"\\",
+                                r"directory",
+                                r"\\",
+                                r"stem.ext",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
+                        {
+                            let input = r"~//server//share//directory//stem.ext";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"~",
+                                r"//",
+                                r"server",
+                                r"//",
+                                r"share",
+                                r"//",
+                                r"directory",
+                                r"//",
+                                r"stem.ext",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
+
+                            assert_eq!(expected, actual);
+                        }
+
                     }
 
+                    // misc
                     {
-                        let input = r"\\.\Volume{b75e2c83-0000-0000-0000-602f00000000}/Test/Foo.txt";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            r"\\",
-                            r".",
-                            r"\",
-                            r"Volume{b75e2c83-0000-0000-0000-602f00000000}",
-                            r"/",
-                            r"Test",
-                            r"/",
-                            r"Foo.txt",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
+                        {
+                            let input = r"\\?\C:/Test/Foo.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"\\",
+                                r"?",
+                                r"\",
+                                r"C:",
+                                r"/",
+                                r"Test",
+                                r"/",
+                                r"Foo.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
 
-                        assert_eq!(expected, actual);
-                    }
+                            assert_eq!(expected, actual);
+                        }
 
-                    {
-                        let input = r"\\?\C:/Test/Foo.txt";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            r"\\",
-                            r"?",
-                            r"\",
-                            r"C:",
-                            r"/",
-                            r"Test",
-                            r"/",
-                            r"Foo.txt",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
+                        {
+                            let input = r"\\.\UNC\LOCALHOST\c$\temp\test-file.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"\\",
+                                r".",
+                                r"\",
+                                r"UNC",
+                                r"\",
+                                r"LOCALHOST",
+                                r"\",
+                                r"c$",
+                                r"\",
+                                r"temp",
+                                r"\",
+                                r"test-file.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
 
-                        assert_eq!(expected, actual);
-                    }
+                            assert_eq!(expected, actual);
+                        }
 
-                    {
-                        let input = r"\\.\UNC\LOCALHOST\c$\temp\test-file.txt";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            r"\\",
-                            r".",
-                            r"\",
-                            r"UNC",
-                            r"\",
-                            r"LOCALHOST",
-                            r"\",
-                            r"c$",
-                            r"\",
-                            r"temp",
-                            r"\",
-                            r"test-file.txt",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
+                        {
+                            let input = r"\\.\UNC\127.0.0.1\c$\temp\test-file.txt";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"\\",
+                                r".",
+                                r"\",
+                                r"UNC",
+                                r"\",
+                                r"127.0.0.1",
+                                r"\",
+                                r"c$",
+                                r"\",
+                                r"temp",
+                                r"\",
+                                r"test-file.txt",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
 
-                        assert_eq!(expected, actual);
-                    }
+                            assert_eq!(expected, actual);
+                        }
 
-                    {
-                        let input = r"\\.\UNC\127.0.0.1\c$\temp\test-file.txt";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            r"\\",
-                            r".",
-                            r"\",
-                            r"UNC",
-                            r"\",
-                            r"127.0.0.1",
-                            r"\",
-                            r"c$",
-                            r"\",
-                            r"temp",
-                            r"\",
-                            r"test-file.txt",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
+                        {
+                            let input = r"\\127.0.0.1\c$\dir\stem.ext";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"\\",
+                                r"127.0.0.1",
+                                r"\",
+                                r"c$",
+                                r"\",
+                                r"dir",
+                                r"\",
+                                r"stem.ext",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
 
-                        assert_eq!(expected, actual);
-                    }
+                            assert_eq!(expected, actual);
+                        }
 
-                    {
-                        let input = r"\\127.0.0.1\c$\dir\stem.ext";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            r"\\",
-                            r"127.0.0.1",
-                            r"\",
-                            r"c$",
-                            r"\",
-                            r"dir",
-                            r"\",
-                            r"stem.ext",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
+                        {
+                            let input = r"\\::1\c$\dir\stem.ext";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"\\",
+                                r"::1",
+                                r"\",
+                                r"c$",
+                                r"\",
+                                r"dir",
+                                r"\",
+                                r"stem.ext",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
 
-                        assert_eq!(expected, actual);
-                    }
+                            assert_eq!(expected, actual);
+                        }
 
-                    {
-                        let input = r"\\127.0.0.1\c$\dir\stem.ext";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            r"\\",
-                            r"127.0.0.1",
-                            r"\",
-                            r"c$",
-                            r"\",
-                            r"dir",
-                            r"\",
-                            r"stem.ext",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
+                        {
+                            let input = r"\\?\server1\share1\\directory1\";
+                            let parse_flags = 0;
+                            let expected = vec![
+                                // element list:
+                                r"\\",
+                                r"?",
+                                r"\",
+                                r"server1",
+                                r"\",
+                                r"share1",
+                                r"\\",
+                                r"directory1",
+                                r"\",
+                            ];
+                            let actual = unc_split_(input, parse_flags);
 
-                        assert_eq!(expected, actual);
-                    }
-
-                    {
-                        let input = r"\\?\server1\utilities\\filecomparer\";
-                        let parse_flags = 0;
-                        let expected = vec![
-                            // element list:
-                            r"\\",
-                            r"?",
-                            r"\",
-                            r"server1",
-                            r"\",
-                            r"utilities",
-                            r"\\",
-                            r"filecomparer",
-                            r"\",
-                        ];
-                        let actual = unc_split_(input, parse_flags);
-
-                        assert_eq!(expected, actual);
+                            assert_eq!(expected, actual);
+                        }
                     }
                 }
             }
