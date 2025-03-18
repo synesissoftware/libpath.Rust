@@ -551,6 +551,7 @@ pub mod libpath {
             use super::common::ClassificationResult;
             use fastparse::fastparse::types::PositionalSlice as PoSl;
 
+
             pub mod classification_flags {
 
                 /// T.B.C.
@@ -657,6 +658,11 @@ pub mod libpath {
                 (cl, cr)
             }
 
+            // Splits the given path into slices.
+            //
+            // # Note:
+            // The splitting is done by byte not by character, because all
+            // significant characters are ASCII.
             fn unc_split_<'a>(
                 path : &'a str,
                 parse_flags : i32,
@@ -678,11 +684,25 @@ pub mod libpath {
                                 // continue the slash run
 
                             } else {
-                                // push slash run slice
+                                // push non-slash run slice
 
                                 if from != ix {
 
-                                    v.push(&path[from..ix]);
+                                    let slice0 = &path[from..ix];
+
+                                    // check for drive-relative strings (e.g. "C:dir") and split them
+                                    if slice0.len() > 2 && str_begins_with_drive_spec_(slice0) {
+
+                                        let slice1 = &slice0[0..2];
+                                        let slice2 = &slice0[2..];
+
+                                        v.push(slice1);
+                                        v.push(slice2);
+                                    } else {
+
+                                        v.push(slice0);
+                                    }
+
                                     from = ix;
                                 }
                             }
@@ -691,7 +711,7 @@ pub mod libpath {
 
                             match prev {
                                 b'/' | b'\\' => {
-                                    // push non-slash run slice
+                                    // push slash run slice
 
                                     v.push(&path[from..ix]);
                                     from = ix;
@@ -997,6 +1017,33 @@ pub mod libpath {
                 }
             }
 
+            fn str_begins_with_drive_spec_(s : &str) -> bool {
+                if s.len() < 2 {
+                    return false;
+                }
+
+                let c0 = s.as_bytes()[0] as char;
+                let c1 = s.as_bytes()[1] as char;
+
+                if c1 != ':' {
+                    return false;
+                }
+
+                if !char_is_drive_letter_(c0) {
+                    return false;
+                }
+
+                true
+            }
+
+            fn str_is_drive_spec_(s : &str) -> bool {
+                if 2 != s.len() {
+                    return false;
+                }
+
+                str_begins_with_drive_spec_(s)
+            }
+
 
             #[cfg(test)]
             mod tests {
@@ -1169,6 +1216,53 @@ pub mod libpath {
                         let input = "";
                         let parse_flags = 0;
                         let expected : Vec<&str> = vec![];
+                        let actual = unc_split_(input, parse_flags);
+
+                        assert_eq!(expected, actual);
+                    }
+
+                    {
+                        let input = r"C:\Test\Foo.txt";
+                        let parse_flags = 0;
+                        let expected = vec![
+                            // element list:
+                            r"C:",
+                            r"\",
+                            r"Test",
+                            r"\",
+                            r"Foo.txt",
+                        ];
+                        let actual = unc_split_(input, parse_flags);
+
+                        assert_eq!(expected, actual);
+                    }
+
+                    {
+                        let input = r"C:/Test/Foo.txt";
+                        let parse_flags = 0;
+                        let expected = vec![
+                            // element list:
+                            r"C:",
+                            r"/",
+                            r"Test",
+                            r"/",
+                            r"Foo.txt",
+                        ];
+                        let actual = unc_split_(input, parse_flags);
+
+                        assert_eq!(expected, actual);
+                    }
+
+                    {
+                        let input = r"C:Test\Foo.txt";
+                        let parse_flags = 0;
+                        let expected = vec![
+                            // element list:
+                            r"C:",
+                            r"Test",
+                            r"\",
+                            r"Foo.txt",
+                        ];
                         let actual = unc_split_(input, parse_flags);
 
                         assert_eq!(expected, actual);
