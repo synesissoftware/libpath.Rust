@@ -182,7 +182,26 @@ pub mod libpath {
 
                 cr.Input = PoSl::new(0, path.len());
 
-                let (cl, root, path_root_stripped, _first_bad_char_index) = classify_root_(path, parse_flags);
+                let (cl, root, path_root_stripped, first_bad_char_index) = classify_root_(path, parse_flags);
+
+                if let Some(ix) = first_bad_char_index {
+                    cr.FirstInvalid = PoSl::new(ix, 1);
+
+                    return (
+                        Classification::InvalidChars,
+                        cr
+                    );
+                } else {
+                    if let Some(ps) = find_first_invalid_char_(path, parse_flags) {
+
+                        cr.FirstInvalid = ps;
+
+                        return (
+                            Classification::InvalidChars,
+                            cr,
+                        );
+                    }
+                }
 
                 cr.Root = PoSl::new(0, root.len());
 
@@ -376,6 +395,27 @@ pub mod libpath {
             fn char_is_path_name_separator_(c : char) -> bool {
                 c == '/'
             }
+
+            fn find_first_invalid_char_(
+                path : &str,
+                parse_flags : i32,
+            ) -> Option<PoSl> {
+                let mut ixb = 0;
+
+                for c in path.chars() {
+                    let nb = c.len_utf8();
+
+                    if char_is_invalid_in_path_(c) {
+
+                        return Some(PoSl::new(ixb, nb));
+                    }
+
+                    ixb += nb;
+                }
+
+                return None;
+            }
+
 
             fn find_last_slash_(s : &str) -> Option<usize> {
                 s.rfind('/')
@@ -1924,6 +1964,51 @@ mod tests {
                 assert_eq!(Classification::Empty, cl);
 
                 assert_eq!(ClassificationResult::empty(), cr);
+            }
+        }
+
+        #[test]
+        fn TEST_path_classify_WITH_INVALID_CHARACTERS_AND_FORMS() {
+            // invalid single-character
+            {
+                let invalid_leading = &[
+                    // element list
+                    "*",
+                    "<",
+                    ">",
+                    "?",
+                    "|",
+                    // ":",
+                    // ";",
+                ];
+
+                for &path in invalid_leading {
+                    let parse_flags : i32 = 0;
+                    let (cl, cr) = path_classify(path, parse_flags);
+
+                    assert_eq!(Classification::InvalidChars, cl);
+
+                    assert_eq!(PoSl::new(0, 1), cr.FirstInvalid);
+                }
+            }
+
+            // invalid character inside directory
+            {
+                let invalid_leading = &[
+                    // element list
+                    ( "abc|", 3 ),
+                    ( "abc/def*/ghi", 7 ),
+                    ( "/a<", 2 ),
+                ];
+
+                for &(path, ix) in invalid_leading {
+                    let parse_flags : i32 = 0;
+                    let (cl, cr) = path_classify(path, parse_flags);
+
+                    assert_eq!(Classification::InvalidChars, cl);
+
+                    assert_eq!(PoSl::new(ix, 1), cr.FirstInvalid);
+                }
             }
         }
 
