@@ -9,7 +9,23 @@
 
 ## Functional improvements
 
-* [ ] Full UNC support (in `libpath::util::windows`);
+* [ ] Full path support (in `libpath::util::windows`):
+  * [ ] Drive-rooted paths;
+  * [ ] Drive-relative paths;
+  * [ ] Home-rooted paths;
+  * [ ] Slash-rooted paths;
+  * [ ] relative paths;
+  * [ ] UNC-rooted paths;
+  * [ ] UNC-incompleted paths;
+  * [ ] (some of) above with:
+    * [ ] Local device prefix `"\\.\"`;
+    * [ ] Root local device prefix `"\\?\"`;
+    * [ ] Local device prefix and UNC designator `"\\.\UNC\"`;
+    * [ ] Root local device prefix and UNC designator `"\\?\UNC\"`;
+    * [ ] NT path prefix `"\??\"`;
+  * [ ] Device names (such as `"COM1"`);
+  * [ ] Support (sadly) full flexibility in Windows paths for mixed use of `'\'` and `'/'` (though not for runs);
+  * [ ] Detection of trailing space as invalid character(s);
 * [ ] Rename `ClassificationResult` to `PathDescriptor`;
 * [x] Rename `ClassificationResult#Entry` to `#EntryName`;
 * [ ] Remove `ClassificationResult#FirstInvalid` and use in function calls;
@@ -20,6 +36,7 @@
 * [ ] Implement `IGNORE_INVALID_CHARS`;
 * [ ] Implement `RECOGNISE_TILDE_HOME`;
 * [ ] Implement `IGNORE_INVALID_CHARS_IN_LONG_PATH`;
+* [ ] Implement path normalisation (Unix and Windows) : `to_os_normal()`, `to_asbtract_normal()`;
 
 
 ## Performance improvements
