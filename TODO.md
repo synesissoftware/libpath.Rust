@@ -25,6 +25,7 @@
     * [ ] NT path prefix `"\??\"`;
   * [ ] Device names (such as `"COM1"`);
   * [ ] Support (sadly) full flexibility in Windows paths for mixed use of `'\'` and `'/'` (though not for runs);
+  * [ ] Detection of trailing space as invalid character(s);
 * [ ] Rename `ClassificationResult` to `PathDescriptor`;
 * [x] Rename `ClassificationResult#Entry` to `#EntryName`;
 * [ ] Remove `ClassificationResult#FirstInvalid` and use in function calls;
