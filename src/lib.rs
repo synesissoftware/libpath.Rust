@@ -198,7 +198,7 @@ pub mod libpath {
 
                         cr.Directory = PoSl::new(root.len(), dir_len);
 
-                        let (num_parts, num_dir_parts) = count_parts_(cr.Directory.substring_of(path), parse_flags);
+                        let (num_parts, num_dir_parts) = count_directory_parts_(cr.Directory.substring_of(path), parse_flags);
 
                         cr.NumDirectoryParts = num_parts;
                         cr.NumDotsDirectoryParts = num_dir_parts;
@@ -383,7 +383,7 @@ pub mod libpath {
                 s.rfind('/')
             }
 
-            fn count_parts_(
+            fn count_directory_parts_(
                 s : &str,
                 parse_flags : i32,
             ) -> (
@@ -534,7 +534,7 @@ pub mod libpath {
                     ];
 
                     for (s, parse_flags, expected_number_of_parts, expected_number_of_dots_parts) in test_criteria {
-                        let (number_of_parts, number_of_dots_parts) = count_parts_(*s, *parse_flags);
+                        let (number_of_parts, number_of_dots_parts) = count_directory_parts_(*s, *parse_flags);
 
                         assert_eq!(*expected_number_of_parts, number_of_parts, "wrong number of parts {number_of_parts} ({expected_number_of_parts} expected) when parsing '{s}'");
                         assert_eq!(*expected_number_of_dots_parts, number_of_dots_parts, "wrong number of dots parts {number_of_dots_parts} ({expected_number_of_dots_parts} expected) when parsing '{s}'");
@@ -630,7 +630,7 @@ pub mod libpath {
 
                         cr.Directory = PoSl::new(root.len(), dir_len);
 
-                        let (num_parts, num_dir_parts) = count_parts_(cr.Directory.substring_of(path), parse_flags);
+                        let (num_parts, num_dir_parts) = count_directory_parts_(cr.Directory.substring_of(path), parse_flags);
 
                         cr.NumDirectoryParts = num_parts;
                         cr.NumDotsDirectoryParts = num_dir_parts;
@@ -978,7 +978,7 @@ pub mod libpath {
                 }
             }
 
-            fn count_parts_(
+            fn count_directory_parts_(
                 s : &str,
                 parse_flags : i32,
             ) -> (
@@ -1221,7 +1221,7 @@ pub mod libpath {
                     ];
 
                     for (s, parse_flags, expected_number_of_parts, expected_number_of_dots_parts) in test_criteria {
-                        let (number_of_parts, number_of_dots_parts) = count_parts_(*s, *parse_flags);
+                        let (number_of_parts, number_of_dots_parts) = count_directory_parts_(*s, *parse_flags);
 
                         assert_eq!(*expected_number_of_parts, number_of_parts, "wrong number of parts {number_of_parts} ({expected_number_of_parts} expected) when parsing '{s}'");
                         assert_eq!(*expected_number_of_dots_parts, number_of_dots_parts, "wrong number of dots parts {number_of_dots_parts} ({expected_number_of_dots_parts} expected) when parsing '{s}'");
