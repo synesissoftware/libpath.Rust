@@ -695,7 +695,7 @@ pub mod libpath {
                                     let slice0 = &path[from..ix];
 
                                     // check for drive-relative strings (e.g. "C:dir") and split them
-                                    if slice0.len() > 2 && str_begins_with_drive_spec_(slice0) {
+                                    if slice0.len() > 2 && slice_begins_with_drive_spec_(slice0) {
 
                                         let slice1 = &slice0[0..2];
                                         let slice2 = &slice0[2..];
@@ -1013,6 +1013,7 @@ pub mod libpath {
                 (number_of_parts, number_of_dots_parts)
             }
 
+            /// Indicates whether the given character is a drive letter.
             fn char_is_drive_letter_(c : char) -> bool {
                 match c {
                     'A'..='Z' => true,
@@ -1021,7 +1022,9 @@ pub mod libpath {
                 }
             }
 
-            fn str_begins_with_drive_spec_(s : &str) -> bool {
+            /// Indicates whether the slice begins with a drive
+            /// specification, e.g. `"C:\dir-1\dir-2\stem.ext"`.
+            fn slice_begins_with_drive_spec_(s : &str) -> bool {
                 if s.len() < 2 {
                     return false;
                 }
@@ -1040,12 +1043,14 @@ pub mod libpath {
                 true
             }
 
-            fn str_is_drive_spec_(s : &str) -> bool {
+            /// Indicates whether the slice is a drive specification, e.g.
+            /// `"C:"`.
+            fn slice_is_drive_spec_(s : &str) -> bool {
                 if 2 != s.len() {
                     return false;
                 }
 
-                str_begins_with_drive_spec_(s)
+                slice_begins_with_drive_spec_(s)
             }
 
 
@@ -1212,6 +1217,50 @@ pub mod libpath {
 
                 #[test]
                 fn TEST_find_last_slash__1() {
+                }
+
+                #[test]
+                fn TEST_slice_begins_with_drive_spec__1() {
+                    assert!(slice_begins_with_drive_spec_("A:"));
+                    assert!(slice_begins_with_drive_spec_("C:"));
+                    assert!(slice_begins_with_drive_spec_("Z:"));
+                    assert!(slice_begins_with_drive_spec_("a:"));
+                    assert!(slice_begins_with_drive_spec_("c:"));
+                    assert!(slice_begins_with_drive_spec_("z:"));
+
+                    assert!(slice_begins_with_drive_spec_("c:\\dir-1\\dir-2\\stem.ext"));
+                    assert!(slice_begins_with_drive_spec_("z:/dir-1/dir-2/stem.ext"));
+                    assert!(slice_begins_with_drive_spec_("A:\\"));
+                    assert!(slice_begins_with_drive_spec_("C:/"));
+                    assert!(!slice_begins_with_drive_spec_("Z"));
+                    assert!(!slice_begins_with_drive_spec_("a"));
+                    assert!(!slice_begins_with_drive_spec_(""));
+
+                    assert!(!slice_begins_with_drive_spec_(".:"));
+                    assert!(!slice_begins_with_drive_spec_("/:"));
+                    assert!(!slice_begins_with_drive_spec_("::"));
+                }
+
+                #[test]
+                fn TEST_slice_is_drive_spec__1() {
+                    assert!(slice_is_drive_spec_("A:"));
+                    assert!(slice_is_drive_spec_("C:"));
+                    assert!(slice_is_drive_spec_("Z:"));
+                    assert!(slice_is_drive_spec_("a:"));
+                    assert!(slice_is_drive_spec_("c:"));
+                    assert!(slice_is_drive_spec_("z:"));
+
+                    assert!(!slice_is_drive_spec_("c:\\dir-1\\dir-2\\stem.ext"));
+                    assert!(!slice_is_drive_spec_("z:/dir-1/dir-2/stem.ext"));
+                    assert!(!slice_is_drive_spec_("A:\\"));
+                    assert!(!slice_is_drive_spec_("C:/"));
+                    assert!(!slice_is_drive_spec_("Z"));
+                    assert!(!slice_is_drive_spec_("a"));
+                    assert!(!slice_is_drive_spec_(""));
+
+                    assert!(!slice_is_drive_spec_(".:"));
+                    assert!(!slice_is_drive_spec_("/:"));
+                    assert!(!slice_is_drive_spec_("::"));
                 }
 
                 #[test]
