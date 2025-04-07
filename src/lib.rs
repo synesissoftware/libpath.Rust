@@ -373,10 +373,12 @@ pub mod libpath {
                 }
             }
 
+            /// Evaluates whether a character is a path-name-separator.
             fn char_is_path_name_separator_(c : char) -> bool {
                 c == '/'
             }
 
+            /// Looks for the last slash in the slice.
             fn find_last_slash_(s : &str) -> Option<usize> {
                 s.rfind('/')
             }
@@ -942,6 +944,7 @@ pub mod libpath {
                 }
             }
 
+            /// Evaluates whether a character is a path-name-separator.
             fn char_is_path_name_separator_(c : char) -> bool {
                 match c {
                     '/' => true,
@@ -950,6 +953,7 @@ pub mod libpath {
                 }
             }
 
+            /// Looks for the last slash (forward or backward) in the slice.
             fn find_last_slash_(s : &str) -> Option<usize> {
                 // TODO: consider rfind(&['/', '\\'][..])
 
