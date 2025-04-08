@@ -1075,6 +1075,8 @@ pub mod libpath {
                     classification_flags,
                     classify_root_,
                     count_directory_parts_,
+                    slice_begins_with_drive_spec_,
+                    slice_is_drive_spec_,
                     unc_split_,
                     Classification,
                 };
