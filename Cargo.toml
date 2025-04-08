@@ -5,7 +5,7 @@
 [package]
 
 authors = [
-	"Matt Wilson <matthew@synesis.com.au>",
+  "Matt Wilson <matthew@synesis.com.au>",
 ]
 description = "Path parsing library (for Rust)"
 edition = "2021"
