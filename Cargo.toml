@@ -33,6 +33,20 @@ path = "test/scratch/libver/main.rs"
 
 [features]
 
+default = [
+]
+
+
+# General features:
+#
+# - "null-feature" - a feature that has no effect (and, thus, is useful for simplifying driver scripts);
+
+null-feature = []
+
+
+# Crate-specific features:
+#
+
 
 # ##########################################################
 # Dependencies
@@ -44,6 +58,8 @@ fastparse = { version = "~0.0", default-features = false, features = [
 
 
 [dev-dependencies]
+
+test_help-rs = { version = "0.1" }
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

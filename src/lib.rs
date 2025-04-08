@@ -4,7 +4,7 @@
  * Purpose: Primary implementation file for libpath.Rust.
  *
  * Created: 16th April 2021
- * Updated: 17th March 2025
+ * Updated: 8th April 2025
  *
  * Home:    http://stlsoft.org/
  *
@@ -66,7 +66,7 @@ pub mod libpath {
                 pub FullPath :              PoSl,
                 /// The prefix.
                 pub Prefix :                PoSl,
-                /// TODO
+                /// T.B.C.
                 ///
                 /// # Note:
                 /// Equivalent to **recls**' `DirectoryPath`.
@@ -198,7 +198,7 @@ pub mod libpath {
 
                         cr.Directory = PoSl::new(root.len(), dir_len);
 
-                        let (num_parts, num_dir_parts) = count_parts_(cr.Directory.substring_of(path), parse_flags);
+                        let (num_parts, num_dir_parts) = count_directory_parts_(cr.Directory.substring_of(path), parse_flags);
 
                         cr.NumDirectoryParts = num_parts;
                         cr.NumDotsDirectoryParts = num_dir_parts;
@@ -377,11 +377,12 @@ pub mod libpath {
                 c == '/'
             }
 
+            /// Looks for the last slash in the slice.
             fn find_last_slash_(s : &str) -> Option<usize> {
                 s.rfind('/')
             }
 
-            fn count_parts_(
+            fn count_directory_parts_(
                 s : &str,
                 parse_flags : i32,
             ) -> (
@@ -434,7 +435,14 @@ pub mod libpath {
             mod tests {
                 #![allow(non_snake_case)]
 
-                use super::*;
+                use super::{
+                    char_is_invalid_in_path_,
+                    char_is_path_name_separator_,
+                    classification_flags,
+                    classify_root_,
+                    count_directory_parts_,
+                    Classification,
+                };
 
                 use fastparse::fastparse::types::PositionalSlice as PoSl;
 
@@ -507,7 +515,7 @@ pub mod libpath {
                 }
 
                 #[test]
-                fn TEST_count_parts__1() {
+                fn TEST_count_directory_parts__1() {
                     let test_criteria = &[
                         ("", 0, 0, 0),
                         ("a", 0, 0, 0),
@@ -532,7 +540,7 @@ pub mod libpath {
                     ];
 
                     for (s, parse_flags, expected_number_of_parts, expected_number_of_dots_parts) in test_criteria {
-                        let (number_of_parts, number_of_dots_parts) = count_parts_(*s, *parse_flags);
+                        let (number_of_parts, number_of_dots_parts) = count_directory_parts_(*s, *parse_flags);
 
                         assert_eq!(*expected_number_of_parts, number_of_parts, "wrong number of parts {number_of_parts} ({expected_number_of_parts} expected) when parsing '{s}'");
                         assert_eq!(*expected_number_of_dots_parts, number_of_dots_parts, "wrong number of dots parts {number_of_dots_parts} ({expected_number_of_dots_parts} expected) when parsing '{s}'");
@@ -619,7 +627,7 @@ pub mod libpath {
 
                         cr.Directory = PoSl::new(root.len(), dir_len);
 
-                        let (num_parts, num_dir_parts) = count_parts_(cr.Directory.substring_of(path), parse_flags);
+                        let (num_parts, num_dir_parts) = count_directory_parts_(cr.Directory.substring_of(path), parse_flags);
 
                         cr.NumDirectoryParts = num_parts;
                         cr.NumDotsDirectoryParts = num_dir_parts;
@@ -666,8 +674,7 @@ pub mod libpath {
             fn unc_split_<'a>(
                 path : &'a str,
                 parse_flags : i32,
-            ) -> Vec<&'a str>
-            {
+            ) -> Vec<&'a str> {
                 {
                     let _ = parse_flags;
                 }
@@ -725,7 +732,7 @@ pub mod libpath {
 
                                 },
                             }
-                        }
+                        },
                     }
 
                     prev = c;
@@ -941,6 +948,7 @@ pub mod libpath {
                 }
             }
 
+            /// Looks for the last slash (forward or backward) in the slice.
             fn find_last_slash_(s : &str) -> Option<usize> {
                 // TODO: consider rfind(&['/', '\\'][..])
 
@@ -965,7 +973,7 @@ pub mod libpath {
                 }
             }
 
-            fn count_parts_(
+            fn count_directory_parts_(
                 s : &str,
                 parse_flags : i32,
             ) -> (
@@ -1013,6 +1021,7 @@ pub mod libpath {
                 (number_of_parts, number_of_dots_parts)
             }
 
+            /// Indicates whether the given character is a drive letter.
             fn char_is_drive_letter_(c : char) -> bool {
                 match c {
                     'A'..='Z' => true,
@@ -1053,7 +1062,16 @@ pub mod libpath {
             mod tests {
                 #![allow(non_snake_case)]
 
-                use super::*;
+                use super::{
+                    char_is_drive_letter_,
+                    char_is_invalid_in_path_,
+                    char_is_path_name_separator_,
+                    classification_flags,
+                    classify_root_,
+                    count_directory_parts_,
+                    unc_split_,
+                    Classification,
+                };
 
                 use fastparse::fastparse::types::PositionalSlice as PoSl;
 
@@ -1157,7 +1175,7 @@ pub mod libpath {
                 }
 
                 #[test]
-                fn TEST_count_parts__1() {
+                fn TEST_count_directory_parts__1() {
                     let test_criteria = &[
                         (r"", 0, 0, 0),
                         (r"a", 0, 0, 0),
@@ -1203,7 +1221,7 @@ pub mod libpath {
                     ];
 
                     for (s, parse_flags, expected_number_of_parts, expected_number_of_dots_parts) in test_criteria {
-                        let (number_of_parts, number_of_dots_parts) = count_parts_(*s, *parse_flags);
+                        let (number_of_parts, number_of_dots_parts) = count_directory_parts_(*s, *parse_flags);
 
                         assert_eq!(*expected_number_of_parts, number_of_parts, "wrong number of parts {number_of_parts} ({expected_number_of_parts} expected) when parsing '{s}'");
                         assert_eq!(*expected_number_of_dots_parts, number_of_dots_parts, "wrong number of dots parts {number_of_dots_parts} ({expected_number_of_dots_parts} expected) when parsing '{s}'");
@@ -1759,7 +1777,6 @@ pub mod libpath {
 
                             assert_eq!(expected, actual);
                         }
-
                     }
 
                     // misc
@@ -1891,19 +1908,28 @@ pub mod libpath {
             }
         }
     }
+
+
+    #[cfg(test)]
+    mod tests {
+        #![allow(non_snake_case)]
+
+        /*
+        use super::*;
+         */
+    }
 }
 
 
 #[cfg(test)]
-#[allow(non_snake_case)]
 mod tests {
     use crate::libpath::util::common::ClassificationResult;
 
     use fastparse::fastparse::types::PositionalSlice as PoSl;
 
 
-    #[allow(non_snake_case)]
     mod unix {
+        #![allow(non_snake_case)]
 
         use crate::libpath::util::unix::{
             classification_flags::*,
@@ -2322,6 +2348,27 @@ mod tests {
                 assert_eq!("", cr.Stem.substring_of(path));
                 assert_eq!("", cr.Extension.substring_of(path));
             }
+
+            {
+                let path = "dir-1/../././././././././././abc";
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
+
+                assert_eq!(Classification::Relative, cl);
+
+                assert_ne!(ClassificationResult::empty(), cr);
+                assert_eq!(PoSl::new(0, 32), cr.Input);
+                assert_eq!(PoSl::empty(), cr.Prefix);
+                assert_eq!(PoSl::new(0, 29), cr.Location);
+                assert_eq!(PoSl::empty(), cr.Root);
+                assert_eq!(PoSl::new(0, 29), cr.Directory);
+                assert_eq!(12, cr.NumDirectoryParts);
+                assert_eq!(11, cr.NumDotsDirectoryParts);
+                assert_eq!(PoSl::new(29, 3), cr.EntryName);
+                assert_eq!(PoSl::new(29, 3), cr.Stem);
+                assert_eq!(PoSl::new(32, 0), cr.Extension);
+                assert!(cr.FirstInvalid.is_empty());
+            }
         }
 
         #[test]
@@ -2353,7 +2400,7 @@ mod tests {
             assert_eq!(".", cr.EntryName.substring_of(path));
             assert_eq!(".", cr.Stem.substring_of(path));
             assert_eq!("", cr.Extension.substring_of(path));
-    }
+        }
 
         #[test]
         fn TEST_path_classify_WITH_DOTS2_ONLY_INTERPRETED_AS_Stem() {
@@ -2668,8 +2715,8 @@ mod tests {
     }
 
 
-    #[allow(non_snake_case)]
     mod windows {
+        #![allow(non_snake_case)]
 
         use crate::libpath::util::windows::{
             classification_flags::*,
@@ -2907,7 +2954,7 @@ mod tests {
                 assert_eq!("name.ext", cr.EntryName.substring_of(path));
                 assert_eq!("name", cr.Stem.substring_of(path));
                 assert_eq!(".ext", cr.Extension.substring_of(path));
-                }
+            }
 
             {
                 let path = r"dir\name.ext";
@@ -3242,7 +3289,7 @@ mod tests {
             assert_eq!(".", cr.EntryName.substring_of(path));
             assert_eq!(".", cr.Stem.substring_of(path));
             assert_eq!("", cr.Extension.substring_of(path));
-    }
+        }
 
         #[test]
         fn TEST_path_classify_WITH_DOTS2_ONLY_INTERPRETED_AS_Stem() {
