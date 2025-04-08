@@ -4,7 +4,7 @@
  * Purpose: Primary implementation file for libpath.Rust.
  *
  * Created: 16th April 2021
- * Updated: 16th March 2025
+ * Updated: 8th April 2025
  *
  * Home:    http://stlsoft.org/
  *
@@ -49,13 +49,26 @@ pub mod libpath {
 
             use fastparse::fastparse::types::PositionalSlice as PoSl;
 
+            /// Describes the classification.
+            ///
+            /// A given full path will have the following elements:
+            /// - FullPath - the full
+            /// - Prefix
             #[derive(Debug)]
             #[derive(PartialEq, Eq)]
             pub struct ClassificationResult {
                 /// The input string's position.
                 pub Input :                 PoSl,
-                pub FullPath :              PoSl, // not used
+                /// The full path.
+                ///
+                /// NOTE: this is not used currently.
+                pub FullPath :              PoSl,
+                /// The prefix.
                 pub Prefix :                PoSl,
+                /// T.B.C.
+                ///
+                /// # Note:
+                /// Equivalent to **recls**' `DirectoryPath`.
                 pub Location :              PoSl,
                 /// The root part of the path, such as `"/"` in a UNIX path,
                 /// `"C:\"` in a Windows path, or `"\\server\share\"` in a
@@ -65,7 +78,7 @@ pub mod libpath {
                 /// UNIX path or `"dir\"` in a Windows path.
                 pub Directory :             PoSl,
                 /// The number of directory parts in the path, which does
-                /// include `Root` and `Basename`.
+                /// include `Root` and `EntryName`.
                 pub NumDirectoryParts :     usize,
                 /// The number of directory parts in the path that are dots
                 /// directories, i.e. `"."`, `".."`.
@@ -77,6 +90,7 @@ pub mod libpath {
                 pub Stem :                  PoSl,
                 /// The entry element's extension.
                 pub Extension :             PoSl,
+                /// 0-based index of the first invalid character in `Input`.
                 pub FirstInvalid :          PoSl,
             }
 
@@ -104,7 +118,9 @@ pub mod libpath {
             mod tests {
                 #![allow(non_snake_case)]
 
+                /*
                 use super::*;
+                 */
             }
         }
 
@@ -173,7 +189,7 @@ pub mod libpath {
 
                 match last_slash {
                     Some(index) => {
-                        // if there's a slash, then there is a directory and, potentially, an EntryName
+                        // if there's a slash, then there is a directory and, potentially, an entry
 
                         let dir_len = index + 1;
 
@@ -188,7 +204,7 @@ pub mod libpath {
                     None => {
                         cr.Directory = PoSl::new(root.len(), 0);
 
-                        // if there's no slash, then the whole (stripped) path is the EntryName
+                        // if there's no slash, then the whole (stripped) path is the entry
 
                         cr.EntryName = PoSl::new(root.len(), path_root_stripped.len());
                     },
@@ -261,8 +277,9 @@ pub mod libpath {
                     let _ = parse_flags;
                 }
 
-                let mut ix = -1;
                 let mut tilde_0 = false;
+
+                let mut ix = -1;
                 for c in path.chars() {
                     ix += 1;
 
@@ -312,10 +329,12 @@ pub mod libpath {
                 )
             }
 
+            /// Evaluates whether a character is a path-name-separator.
             fn char_is_path_name_separator_(c : char) -> bool {
                 c == '/'
             }
 
+            /// Looks for the last slash in the slice.
             fn find_last_slash_(s : &str) -> Option<usize> {
                 s.rfind('/')
             }
@@ -456,7 +475,7 @@ pub mod libpath {
 
                 match last_slash {
                     Some(index) => {
-                        // if there's a slash, then there is a directory and, potentially, an EntryName
+                        // if there's a slash, then there is a directory and, potentially, an entry
 
                         let dir_len = index + 1;
 
@@ -471,7 +490,7 @@ pub mod libpath {
                     None => {
                         cr.Directory = PoSl::new(root.len(), 0);
 
-                        // if there's no slash, then the whole (stripped) path is the EntryName
+                        // if there's no slash, then the whole (stripped) path is the entry
 
                         cr.EntryName = PoSl::new(root.len(), path_root_stripped.len());
                     },
@@ -626,6 +645,7 @@ pub mod libpath {
                 )
             }
 
+            /// Evaluates whether a character is a path-name-separator.
             fn char_is_path_name_separator_(c : char) -> bool {
                 match c {
                     '/' => true,
@@ -634,6 +654,7 @@ pub mod libpath {
                 }
             }
 
+            /// Looks for the last slash in the slice.
             fn find_last_slash_(s : &str) -> Option<usize> {
                 // TODO: consider rfind(&['/', '\\'][..])
 
@@ -767,7 +788,9 @@ pub mod libpath {
     mod tests {
         #![allow(non_snake_case)]
 
+        /*
         use super::*;
+         */
     }
 }
 
