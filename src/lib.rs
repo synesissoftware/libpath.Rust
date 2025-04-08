@@ -263,7 +263,7 @@ pub mod libpath {
             ///
             /// # Returns:
             /// `(classification : Classification, root : PositionalSlice, path_root_stripped : PositionalSlice)`
-            pub fn classify_root_(
+            fn classify_root_(
                 path : &str,
                 parse_flags : i32,
             ) -> (
@@ -549,7 +549,7 @@ pub mod libpath {
             ///
             /// # Returns:
             /// `(classification : Classification, root : PositionalSlice, path_root_stripped : PositionalSlice)`
-            pub fn classify_root_(
+            fn classify_root_(
                 path : &str,
                 parse_flags : i32,
             ) -> (
@@ -837,7 +837,8 @@ mod tests {
         fn TEST_path_classify_entry_only() {
             {
                 let path = "name.ext";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -866,7 +867,8 @@ mod tests {
 
             {
                 let path = "name";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -895,7 +897,8 @@ mod tests {
 
             {
                 let path = ".ext";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -924,7 +927,8 @@ mod tests {
 
             {
                 let path = "ab.";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -951,7 +955,8 @@ mod tests {
 
             {
                 let path = "a..";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -978,7 +983,8 @@ mod tests {
 
             {
                 let path = "...";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1007,7 +1013,8 @@ mod tests {
         #[test]
         fn TEST_path_classify_rel_dir_and_name() {
             let path = "dir/name.ext";
-            let (cl, cr) = path_classify(path, 0);
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::Relative, cl);
 
@@ -1038,7 +1045,8 @@ mod tests {
         fn TEST_path_classify_WITH_RELATIVE_Directory_ONLY() {
             {
                 let path = "dir/";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1067,7 +1075,8 @@ mod tests {
 
             {
                 let path = "dir1/dir2/";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1087,7 +1096,8 @@ mod tests {
 
             {
                 let path = "dir1/../";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1107,7 +1117,8 @@ mod tests {
 
             {
                 let path = "../dir1/";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1127,7 +1138,8 @@ mod tests {
 
             {
                 let path = ".././";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1147,7 +1159,8 @@ mod tests {
 
             {
                 let path = "dir-1/../././././././././././abc";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1169,7 +1182,8 @@ mod tests {
         #[test]
         fn TEST_path_classify_WITH_DOTS1_ONLY_INTERPRETED_AS_Stem() {
             let path = ".";
-            let (cl, cr) = path_classify(path, 0);
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::Relative, cl);
 
@@ -1190,7 +1204,8 @@ mod tests {
         #[test]
         fn TEST_path_classify_WITH_DOTS2_ONLY_INTERPRETED_AS_Stem() {
             let path = "..";
-            let (cl, cr) = path_classify(path, 0);
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::Relative, cl);
 
@@ -1211,7 +1226,8 @@ mod tests {
         #[test]
         fn TEST_path_classify_WITH_DOTS3_ONLY_INTERPRETED_AS_Stem() {
             let path = "...";
-            let (cl, cr) = path_classify(path, 0);
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::Relative, cl);
 
@@ -1230,7 +1246,8 @@ mod tests {
         #[test]
         fn TEST_path_classify_WITH_SLASHROOTED_PATH() {
             let path = "/dir/sub-dir/file.ext";
-            let (cl, cr) = path_classify(path, 0);
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::SlashRooted, cl);
 
@@ -1260,7 +1277,8 @@ mod tests {
         #[test]
         fn TEST_path_classify_WITH_HomeRooted_PATH_WITH__RECOGNISE_TILDE_HOME() {
             let path = "~/dir/sub-dir/file.ext";
-            let (cl, cr) = path_classify(path, 0);
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::HomeRooted, cl);
 
@@ -1290,7 +1308,8 @@ mod tests {
         #[test]
         fn TEST_path_classify_WITH_HOME_ONLY_WITHOUT__RECOGNISE_TILDE_HOME() {
             let path = "~";
-            let (cl, cr) = path_classify(path, 0);
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::HomeRooted, cl);
 
@@ -1349,7 +1368,8 @@ mod tests {
         fn TEST_path_classify_entry_only() {
             {
                 let path = "name.ext";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1378,7 +1398,8 @@ mod tests {
 
             {
                 let path = "name";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1398,7 +1419,8 @@ mod tests {
 
             {
                 let path = ".ext";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1418,7 +1440,8 @@ mod tests {
 
             {
                 let path = "ab.";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1438,7 +1461,8 @@ mod tests {
 
             {
                 let path = "a..";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1458,7 +1482,8 @@ mod tests {
 
             {
                 let path = "...";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1481,7 +1506,8 @@ mod tests {
         fn TEST_path_classify_rel_dir_and_name() {
             {
                 let path = "dir/name.ext";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1501,7 +1527,8 @@ mod tests {
 
             {
                 let path = r"dir\name.ext";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1524,7 +1551,8 @@ mod tests {
         fn TEST_path_classify_WITH_RELATIVE_Directory_ONLY() {
             {
                 let path = "dir/";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1553,7 +1581,8 @@ mod tests {
 
             {
                 let path = "dir1/dir2/";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1573,7 +1602,8 @@ mod tests {
 
             {
                 let path = "dir1/../";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1593,7 +1623,8 @@ mod tests {
 
             {
                 let path = "../dir1/";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1613,7 +1644,8 @@ mod tests {
 
             {
                 let path = ".././";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1633,7 +1665,8 @@ mod tests {
 
             {
                 let path = r"dir\";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1653,7 +1686,8 @@ mod tests {
 
             {
                 let path = r"dir1\dir2\";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::Relative, cl);
 
@@ -1675,7 +1709,8 @@ mod tests {
         #[test]
         fn TEST_path_classify_WITH_DOTS1_ONLY_INTERPRETED_AS_Stem() {
             let path = ".";
-            let (cl, cr) = path_classify(path, 0);
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::Relative, cl);
 
@@ -1696,7 +1731,8 @@ mod tests {
         #[test]
         fn TEST_path_classify_WITH_DOTS2_ONLY_INTERPRETED_AS_Stem() {
             let path = "..";
-            let (cl, cr) = path_classify(path, 0);
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::Relative, cl);
 
@@ -1717,7 +1753,8 @@ mod tests {
         #[test]
         fn TEST_path_classify_root() {
             let path = "C:/";
-            let (cl, cr) = path_classify(path, 0);
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::DriveLetterRooted, cl);
 
@@ -1739,7 +1776,8 @@ mod tests {
         fn TEST_path_classify_WITH_SLASHROOTED_PATH() {
             {
                 let path = "/dir/sub-dir/file.ext";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::SlashRooted, cl);
 
@@ -1768,7 +1806,8 @@ mod tests {
 
             {
                 let path = r"\dir\sub-dir\file.ext";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::SlashRooted, cl);
 
@@ -1800,7 +1839,8 @@ mod tests {
         fn TEST_path_classify_WITH_DriveLetterRooted_PATH() {
             {
                 let path = "C:/dir/sub-dir/file.ext";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::DriveLetterRooted, cl);
 
@@ -1829,7 +1869,8 @@ mod tests {
 
             {
                 let path = r"C:\dir\sub-dir\file.ext";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::DriveLetterRooted, cl);
 
@@ -1861,7 +1902,8 @@ mod tests {
         fn TEST_path_classify_WITH_DriveLetterRelative_PATH() {
             {
                 let path = "C:dir/sub-dir/file.ext";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::DriveLetterRelative, cl);
 
@@ -1890,7 +1932,8 @@ mod tests {
 
             {
                 let path = r"C:dir\sub-dir\file.ext";
-                let (cl, cr) = path_classify(path, 0);
+                let parse_flags : i32 = 0;
+                let (cl, cr) = path_classify(path, parse_flags);
 
                 assert_eq!(Classification::DriveLetterRelative, cl);
 
@@ -1921,7 +1964,8 @@ mod tests {
         #[test]
         fn TEST_path_classify_WITH_HomeRooted_PATH_WITH__RECOGNISE_TILDE_HOME() {
             let path = "~/dir/sub-dir/file.ext";
-            let (cl, cr) = path_classify(path, 0);
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::HomeRooted, cl);
 
@@ -1951,7 +1995,8 @@ mod tests {
         #[test]
         fn TEST_path_classify_WITH_HOME_ONLY_WITHOUT__RECOGNISE_TILDE_HOME() {
             let path = "~";
-            let (cl, cr) = path_classify(path, 0);
+            let parse_flags : i32 = 0;
+            let (cl, cr) = path_classify(path, parse_flags);
 
             assert_eq!(Classification::HomeRooted, cl);
 
