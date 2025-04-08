@@ -196,6 +196,7 @@ pub mod libpath {
                         cr.Directory = PoSl::new(root.len(), dir_len);
 
                         let (num_parts, num_dir_parts) = count_directory_parts_(cr.Directory.substring_of(path), parse_flags);
+
                         cr.NumDirectoryParts = num_parts;
                         cr.NumDotsDirectoryParts = num_dir_parts;
 
@@ -236,15 +237,15 @@ pub mod libpath {
 
                             if is_dots {
                                 cr.Stem = cr.EntryName;
-                                cr.Extension = PoSl::new(cr.EntryName.length, 0);
+                                cr.Extension = PoSl::new(cr.EntryName.len(), 0);
                             } else {
                                 cr.Stem = PoSl::new(cr.EntryName.offset, index);
-                                cr.Extension = PoSl::new(cr.EntryName.offset + index, cr.EntryName.length - index);
+                                cr.Extension = PoSl::new(cr.EntryName.offset + index, cr.EntryName.len() - index);
                             }
                         },
                         None => {
                             cr.Stem = cr.EntryName;
-                            cr.Extension = PoSl::new(cr.EntryName.offset + cr.EntryName.length, 0);
+                            cr.Extension = PoSl::new(cr.EntryName.offset + cr.EntryName.len(), 0);
                         },
                     }
                 }
@@ -482,6 +483,7 @@ pub mod libpath {
                         cr.Directory = PoSl::new(root.len(), dir_len);
 
                         let (num_parts, num_dir_parts) = count_directory_parts_(cr.Directory.substring_of(path), parse_flags);
+
                         cr.NumDirectoryParts = num_parts;
                         cr.NumDotsDirectoryParts = num_dir_parts;
 
@@ -522,15 +524,15 @@ pub mod libpath {
 
                             if is_dots {
                                 cr.Stem = cr.EntryName;
-                                cr.Extension = PoSl::new(cr.EntryName.length, 0);
+                                cr.Extension = PoSl::new(cr.EntryName.len(), 0);
                             } else {
                                 cr.Stem = PoSl::new(cr.EntryName.offset, index);
-                                cr.Extension = PoSl::new(cr.EntryName.offset + index, cr.EntryName.length - index);
+                                cr.Extension = PoSl::new(cr.EntryName.offset + index, cr.EntryName.len() - index);
                             }
                         },
                         None => {
                             cr.Stem = cr.EntryName;
-                            cr.Extension = PoSl::new(cr.EntryName.offset + cr.EntryName.length, 0);
+                            cr.Extension = PoSl::new(cr.EntryName.offset + cr.EntryName.len(), 0);
                         },
                     }
                 }
