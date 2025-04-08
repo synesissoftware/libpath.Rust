@@ -541,11 +541,11 @@ pub mod libpath {
             }
 
             /// Examines the path to the degree necessary to be able to
-            /// classify the path
+            /// classify it.
             ///
             /// # Parameters:
             /// - `path` - the given path to be classified;
-            /// - `parse_flags` - the flags to modulate the classification;
+            /// - `parse_flags` - flags that moderate the classification;
             ///
             /// # Returns:
             /// `(classification : Classification, root : PositionalSlice, path_root_stripped : PositionalSlice)`
@@ -654,7 +654,7 @@ pub mod libpath {
                 }
             }
 
-            /// Looks for the last slash in the slice.
+            /// Looks for the last slash (forward or backward) in the slice.
             fn find_last_slash_(s : &str) -> Option<usize> {
                 // TODO: consider rfind(&['/', '\\'][..])
 
@@ -727,6 +727,7 @@ pub mod libpath {
                 (number_of_parts, number_of_dots_parts)
             }
 
+            /// Indicates whether the given character is a drive letter.
             fn char_is_drive_letter_(c : char) -> bool {
                 match c {
                     'A'..='Z' => true,
