@@ -49,6 +49,7 @@ pub mod libpath {
 
             use fastparse::fastparse::types::PositionalSlice as PoSl;
 
+
             /// Describes the classification.
             ///
             /// A given full path will have the following elements:
@@ -596,7 +597,6 @@ pub mod libpath {
                 let mut is_drive_2 = false;
 
                 let mut ix = -1;
-
                 for c in path.chars() {
                     ix += 1;
 
@@ -767,7 +767,16 @@ pub mod libpath {
             mod tests {
                 #![allow(non_snake_case)]
 
-                use super::*;
+                use super::{
+                    char_is_drive_letter_,
+                    char_is_path_name_separator_,
+                    classification_flags,
+                    classify_root_,
+                    count_directory_parts_,
+                    Classification,
+                };
+
+                use fastparse::fastparse::types::PositionalSlice as PoSl;
 
 
                 #[test]
