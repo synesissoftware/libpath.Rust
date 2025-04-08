@@ -373,6 +373,7 @@ pub mod libpath {
                 }
             }
 
+            /// Evaluates whether a character is a path-name-separator.
             fn char_is_path_name_separator_(c : char) -> bool {
                 c == '/'
             }
@@ -940,6 +941,7 @@ pub mod libpath {
                 }
             }
 
+            /// Evaluates whether a character is a path-name-separator.
             fn char_is_path_name_separator_(c : char) -> bool {
                 match c {
                     '/' => true,
@@ -1030,6 +1032,8 @@ pub mod libpath {
                 }
             }
 
+            /// Indicates whether the slice begins with a drive
+            /// specification, e.g. `"C:\dir-1\dir-2\stem.ext"`.
             fn str_begins_with_drive_spec_(s : &str) -> bool {
                 if s.len() < 2 {
                     return false;
@@ -1049,6 +1053,8 @@ pub mod libpath {
                 true
             }
 
+            /// Indicates whether the slice is a drive specification, e.g.
+            /// `"C:"`.
             fn str_is_drive_spec_(s : &str) -> bool {
                 if 2 != s.len() {
                     return false;
