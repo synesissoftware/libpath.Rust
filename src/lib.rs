@@ -442,6 +442,7 @@ pub mod libpath {
                     classification_flags,
                     classify_root_,
                     count_directory_parts_,
+                    find_last_slash_,
                     Classification,
                 };
 
@@ -550,6 +551,15 @@ pub mod libpath {
 
                 #[test]
                 fn TEST_find_last_slash__1() {
+                    assert_eq!(None, find_last_slash_(""));
+                    assert_eq!(None, find_last_slash_("abc"));
+                    assert_eq!(None, find_last_slash_("C:"));
+
+                    assert_eq!(Some(12), find_last_slash_("/dir-1/dir-2/stem.ext"));
+                    assert_eq!(None, find_last_slash_("dir\\"));
+                    assert_eq!(Some(3), find_last_slash_("dir/"));
+                    assert_eq!(Some(0), find_last_slash_("/"));
+                    assert_eq!(None, find_last_slash_("\\"));
                 }
             }
         }
@@ -1075,6 +1085,7 @@ pub mod libpath {
                     classification_flags,
                     classify_root_,
                     count_directory_parts_,
+                    find_last_slash_,
                     slice_begins_with_drive_spec_,
                     slice_is_drive_spec_,
                     unc_split_,
@@ -1240,6 +1251,16 @@ pub mod libpath {
 
                 #[test]
                 fn TEST_find_last_slash__1() {
+                    assert_eq!(None, find_last_slash_(""));
+                    assert_eq!(None, find_last_slash_("abc"));
+                    assert_eq!(None, find_last_slash_("C:"));
+
+                    assert_eq!(Some(14), find_last_slash_("c:\\dir-1\\dir-2\\stem.ext"));
+                    assert_eq!(Some(12), find_last_slash_("/dir-1/dir-2/stem.ext"));
+                    assert_eq!(Some(2), find_last_slash_("C:\\"));
+                    assert_eq!(Some(2), find_last_slash_("C:/"));
+                    assert_eq!(Some(0), find_last_slash_("/"));
+                    assert_eq!(Some(0), find_last_slash_("\\"));
                 }
 
                 #[test]
