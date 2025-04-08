@@ -396,14 +396,14 @@ pub mod libpath {
 
 
                 #[test]
-                fn char_is_path_name_separator__1() {
+                fn TEST_char_is_path_name_separator__1() {
                     assert!(char_is_path_name_separator_('/'));
                     assert!(!char_is_path_name_separator_('\\'));
 
-                    assert!(!char_is_path_name_separator_('a'));
-                    assert!(!char_is_path_name_separator_(':'));
-                    assert!(!char_is_path_name_separator_(';'));
                     assert!(!char_is_path_name_separator_('-'));
+                    assert!(!char_is_path_name_separator_(';'));
+                    assert!(!char_is_path_name_separator_(':'));
+                    assert!(!char_is_path_name_separator_('a'));
                 }
             }
         }
@@ -744,40 +744,40 @@ pub mod libpath {
 
 
                 #[test]
-                fn char_is_drive_letter__1() {
-                    assert!(char_is_drive_letter_('a'));
+                fn TEST_char_is_drive_letter__1() {
                     assert!(char_is_drive_letter_('A'));
-                    assert!(char_is_drive_letter_('c'));
                     assert!(char_is_drive_letter_('C'));
-                    assert!(char_is_drive_letter_('z'));
                     assert!(char_is_drive_letter_('Z'));
+                    assert!(char_is_drive_letter_('a'));
+                    assert!(char_is_drive_letter_('c'));
+                    assert!(char_is_drive_letter_('z'));
 
                     assert!(!char_is_drive_letter_(':'));
-                    assert!(!char_is_drive_letter_('/'));
                     assert!(!char_is_drive_letter_('.'));
+                    assert!(!char_is_drive_letter_('/'));
                 }
 
                 #[test]
-                fn char_is_path_name_separator__1() {
+                fn TEST_char_is_path_name_separator__1() {
                     assert!(char_is_path_name_separator_('/'));
                     assert!(char_is_path_name_separator_('\\'));
 
-                    assert!(!char_is_path_name_separator_('a'));
-                    assert!(!char_is_path_name_separator_(':'));
-                    assert!(!char_is_path_name_separator_(';'));
                     assert!(!char_is_path_name_separator_('-'));
+                    assert!(!char_is_path_name_separator_(';'));
+                    assert!(!char_is_path_name_separator_(':'));
+                    assert!(!char_is_path_name_separator_('a'));
                 }
 
                 #[test]
-                fn classify_root__1() {
+                fn TEST_classify_root__1() {
                 }
 
                 #[test]
-                fn count_parts__1() {
+                fn TEST_count_parts__1() {
                 }
 
                 #[test]
-                fn find_last_slash__1() {
+                fn TEST_find_last_slash__1() {
                 }
             }
         }
@@ -820,7 +820,7 @@ mod tests {
 
 
         #[test]
-        fn unix_path_classify_empty() {
+        fn TEST_path_classify_WITH_EMPTY_INPUT() {
             let flag_max = 0 | IGNORE_SLASH_RUNS | IGNORE_INVALID_CHARS | RECOGNISE_TILDE_HOME;
 
             for flags in 0..=flag_max {
@@ -833,7 +833,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_entry_only() {
+        fn TEST_path_classify_entry_only() {
             {
                 let path = "name.ext";
                 let (cl, cr) = path_classify(path, 0);
@@ -1004,7 +1004,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_rel_dir_and_name() {
+        fn TEST_path_classify_rel_dir_and_name() {
             let path = "dir/name.ext";
             let (cl, cr) = path_classify(path, 0);
 
@@ -1034,7 +1034,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_rel_dir_only() {
+        fn TEST_path_classify_WITH_RELATIVE_Directory_ONLY() {
             {
                 let path = "dir/";
                 let (cl, cr) = path_classify(path, 0);
@@ -1166,7 +1166,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_dots1_only() {
+        fn TEST_path_classify_WITH_DOTS1_ONLY_INTERPRETED_AS_Stem() {
             let path = ".";
             let (cl, cr) = path_classify(path, 0);
 
@@ -1187,7 +1187,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_dots2_only() {
+        fn TEST_path_classify_WITH_DOTS2_ONLY_INTERPRETED_AS_Stem() {
             let path = "..";
             let (cl, cr) = path_classify(path, 0);
 
@@ -1208,7 +1208,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_dotsnondots1() {
+        fn TEST_path_classify_WITH_DOTS3_ONLY_INTERPRETED_AS_Stem() {
             let path = "...";
             let (cl, cr) = path_classify(path, 0);
 
@@ -1227,7 +1227,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_slashrooted_path() {
+        fn TEST_path_classify_WITH_SLASHROOTED_PATH() {
             let path = "/dir/sub-dir/file.ext";
             let (cl, cr) = path_classify(path, 0);
 
@@ -1257,7 +1257,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_home_path() {
+        fn TEST_path_classify_WITH_HomeRooted_PATH_WITH__RECOGNISE_TILDE_HOME() {
             let path = "~/dir/sub-dir/file.ext";
             let (cl, cr) = path_classify(path, 0);
 
@@ -1287,7 +1287,7 @@ mod tests {
         }
 
         #[test]
-        fn unix_path_classify_home_only() {
+        fn TEST_path_classify_WITH_HOME_ONLY_WITHOUT__RECOGNISE_TILDE_HOME() {
             let path = "~";
             let (cl, cr) = path_classify(path, 0);
 
@@ -1331,7 +1331,7 @@ mod tests {
 
 
         #[test]
-        fn windows_path_classify_empty() {
+        fn TEST_path_classify_WITH_EMPTY_INPUT() {
             let flag_max =
                 0 | IGNORE_SLASH_RUNS | IGNORE_INVALID_CHARS | RECOGNISE_TILDE_HOME | IGNORE_INVALID_CHARS_IN_LONG_PATH;
 
@@ -1345,7 +1345,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_entry_only() {
+        fn TEST_path_classify_entry_only() {
             {
                 let path = "name.ext";
                 let (cl, cr) = path_classify(path, 0);
@@ -1477,7 +1477,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_rel_dir_and_name() {
+        fn TEST_path_classify_rel_dir_and_name() {
             {
                 let path = "dir/name.ext";
                 let (cl, cr) = path_classify(path, 0);
@@ -1520,7 +1520,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_rel_dir_only() {
+        fn TEST_path_classify_WITH_RELATIVE_Directory_ONLY() {
             {
                 let path = "dir/";
                 let (cl, cr) = path_classify(path, 0);
@@ -1672,7 +1672,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_dots1_only() {
+        fn TEST_path_classify_WITH_DOTS1_ONLY_INTERPRETED_AS_Stem() {
             let path = ".";
             let (cl, cr) = path_classify(path, 0);
 
@@ -1693,7 +1693,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_dots2_only() {
+        fn TEST_path_classify_WITH_DOTS2_ONLY_INTERPRETED_AS_Stem() {
             let path = "..";
             let (cl, cr) = path_classify(path, 0);
 
@@ -1714,7 +1714,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_root() {
+        fn TEST_path_classify_root() {
             let path = "C:/";
             let (cl, cr) = path_classify(path, 0);
 
@@ -1735,7 +1735,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_slashrooted_path() {
+        fn TEST_path_classify_WITH_SLASHROOTED_PATH() {
             {
                 let path = "/dir/sub-dir/file.ext";
                 let (cl, cr) = path_classify(path, 0);
@@ -1796,7 +1796,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_driverooted_path() {
+        fn TEST_path_classify_WITH_DriveLetterRooted_PATH() {
             {
                 let path = "C:/dir/sub-dir/file.ext";
                 let (cl, cr) = path_classify(path, 0);
@@ -1857,7 +1857,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_driverelative_path() {
+        fn TEST_path_classify_WITH_DriveLetterRelative_PATH() {
             {
                 let path = "C:dir/sub-dir/file.ext";
                 let (cl, cr) = path_classify(path, 0);
@@ -1918,7 +1918,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_home_path() {
+        fn TEST_path_classify_WITH_HomeRooted_PATH_WITH__RECOGNISE_TILDE_HOME() {
             let path = "~/dir/sub-dir/file.ext";
             let (cl, cr) = path_classify(path, 0);
 
@@ -1948,7 +1948,7 @@ mod tests {
         }
 
         #[test]
-        fn windows_path_classify_home_only() {
+        fn TEST_path_classify_WITH_HOME_ONLY_WITHOUT__RECOGNISE_TILDE_HOME() {
             let path = "~";
             let (cl, cr) = path_classify(path, 0);
 
