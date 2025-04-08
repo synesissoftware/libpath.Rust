@@ -195,7 +195,7 @@ pub mod libpath {
 
                         cr.Directory = PoSl::new(root.len(), dir_len);
 
-                        let (num_parts, num_dir_parts) = count_parts_(cr.Directory.substring_of(path), parse_flags);
+                        let (num_parts, num_dir_parts) = count_directory_parts_(cr.Directory.substring_of(path), parse_flags);
                         cr.NumDirectoryParts = num_parts;
                         cr.NumDotsDirectoryParts = num_dir_parts;
 
@@ -339,7 +339,7 @@ pub mod libpath {
                 s.rfind('/')
             }
 
-            fn count_parts_(
+            fn count_directory_parts_(
                 s : &str,
                 parse_flags : i32,
             ) -> (
@@ -481,7 +481,7 @@ pub mod libpath {
 
                         cr.Directory = PoSl::new(root.len(), dir_len);
 
-                        let (num_parts, num_dir_parts) = count_parts_(cr.Directory.substring_of(path), parse_flags);
+                        let (num_parts, num_dir_parts) = count_directory_parts_(cr.Directory.substring_of(path), parse_flags);
                         cr.NumDirectoryParts = num_parts;
                         cr.NumDotsDirectoryParts = num_dir_parts;
 
@@ -679,7 +679,7 @@ pub mod libpath {
                 }
             }
 
-            fn count_parts_(
+            fn count_directory_parts_(
                 s : &str,
                 parse_flags : i32,
             ) -> (
@@ -773,7 +773,7 @@ pub mod libpath {
                 }
 
                 #[test]
-                fn TEST_count_parts__1() {
+                fn TEST_count_directory_parts__1() {
                 }
 
                 #[test]
