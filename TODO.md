@@ -9,6 +9,9 @@
 
 ## Functional improvements
 
+The following path semantics remain implementation work and are not part of
+the boilerplate baseline.
+
 * [ ] Full path support (in `libpath::util::windows`):
   * [ ] Drive-rooted paths;
   * [ ] Drive-relative paths;

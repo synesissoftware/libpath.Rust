@@ -1,17 +1,26 @@
-# libpath.Rust - CHANGES <!-- omit in toc -->
+# libpath.Rust - Changes <!-- omit in toc -->
+
+
+## 0.0.3 - 31st August 2026
+
+* Added complete package metadata, release documentation, and CI checks;
+* Added reproducible pinned-nightly formatting and repository checkers;
+* Updated **fastparse** and **test_help-rs** to current compatible releases;
+* Documented the current public API and retained unfinished path semantics in **TODO.md**;
 
 
 ## 0.0.2 - 16th March 2025
 
-* ~ renamed `ClassificationResult#Entry` => `#EntryName`;
-* + added **test/scratch/libver**;
-* ~ tidying ; + adding in as much of 2024 work's tests as work with current definition;
-* + added **CHANGES.md**, **NEWS.md**, and **TODO.md**;
+* Renamed `ClassificationResult#Entry` to `#EntryName`;
+* Added **test/scratch/libver**;
+* Tidied the source and added compatible tests from the 2024 work;
+* Added **CHANGES.md**, **NEWS.md**, and **TODO.md**;
+
 
 
 ## 0.0.1 - 5th April 2024
 
-* initial version;
+* Initial version;
 
 
 All history before this day is moot!

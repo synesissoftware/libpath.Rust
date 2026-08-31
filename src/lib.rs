@@ -4,11 +4,11 @@
  * Purpose: Primary implementation file for libpath.Rust.
  *
  * Created: 16th April 2021
- * Updated: 8th April 2025
+ * Updated: 31st August 2026
  *
  * Home:    http://stlsoft.org/
  *
- * Copyright (c) 2021-2025, Matthew Wilson and Synesis Information Systems
+ * Copyright (c) 2021-2026, Matthew Wilson and Synesis Information Systems
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,23 @@
  *
  * ////////////////////////////////////////////////////////////////////// */
 
+//! `libpath` provides path classification for Unix-like and Windows path
+//! syntax. It reports the root, directory, entry name, stem, and extension
+//! as positions into the original input.
+//!
+//! The public API is organised under the `libpath::util` module. The
+//! platform-specific modules expose `path_classify()` and their associated
+//! classification types.
+//!
+//! # Example
+//!
+//! ```
+//! use libpath::libpath::util::unix::{path_classify, Classification};
+//!
+//! let (classification, _) = path_classify("dir/name.txt", 0);
+//! assert_eq!(Classification::Relative, classification);
+//! ```
+
 
 pub mod libpath {
 
@@ -56,7 +73,7 @@ pub mod libpath {
             /// - FullPath - the full
             /// - Prefix
             #[derive(Debug)]
-            #[derive(PartialEq, Eq)]
+            #[derive(Eq, PartialEq)]
             pub struct ClassificationResult {
                 /// The input string's position.
                 pub Input :                 PoSl,
@@ -66,7 +83,8 @@ pub mod libpath {
                 pub FullPath :              PoSl,
                 /// The prefix.
                 pub Prefix :                PoSl,
-                /// T.B.C.
+                /// The part of the input ending immediately before
+                /// `EntryName`.
                 ///
                 /// # Note:
                 /// Equivalent to **recls**' `DirectoryPath`.
@@ -133,11 +151,11 @@ pub mod libpath {
 
             pub mod classification_flags {
 
-                /// T.B.C.
+                /// Reserved flag for handling runs of path separators.
                 pub const IGNORE_SLASH_RUNS : i32 = 0x00000001;
-                /// T.B.C.
+                /// Reserved flag for handling invalid path characters.
                 pub const IGNORE_INVALID_CHARS : i32 = 0x00000002;
-                /// T.B.C.
+                /// Flag associated with tilde-home classification.
                 pub const RECOGNISE_TILDE_HOME : i32 = 0x00000004;
             }
 
@@ -161,6 +179,7 @@ pub mod libpath {
             }
 
 
+            #[allow(clippy::collapsible_if)]
             pub fn path_classify(
                 path : &str,
                 parse_flags : i32,
@@ -196,7 +215,8 @@ pub mod libpath {
 
                         cr.Directory = PoSl::new(root.len(), dir_len);
 
-                        let (num_parts, num_dir_parts) = count_directory_parts_(cr.Directory.substring_of(path), parse_flags);
+                        let (num_parts, num_dir_parts) =
+                            count_directory_parts_(cr.Directory.substring_of(path), parse_flags);
 
                         cr.NumDirectoryParts = num_parts;
                         cr.NumDotsDirectoryParts = num_dir_parts;
@@ -264,7 +284,11 @@ pub mod libpath {
             /// - `parse_flags` - flags that moderate the classification;
             ///
             /// # Returns:
-            /// `(classification : Classification, root : PositionalSlice, path_root_stripped : PositionalSlice)`
+            /// `(classification : Classification, root : PositionalSlice,
+            /// path_root_stripped : PositionalSlice)`
+            #[allow(clippy::collapsible_if)]
+            #[allow(unused_assignments)]
+            #[allow(unused_variables)]
             fn classify_root_(
                 path : &str,
                 parse_flags : i32,
@@ -394,15 +418,7 @@ pub mod libpath {
             mod tests {
                 #![allow(non_snake_case)]
 
-                use super::{
-                    char_is_path_name_separator_,
-                    classification_flags,
-                    classify_root_,
-                    count_directory_parts_,
-                    Classification,
-                };
-
-                use fastparse::fastparse::types::PositionalSlice as PoSl;
+                use super::char_is_path_name_separator_;
 
 
                 #[test]
@@ -442,13 +458,14 @@ pub mod libpath {
 
             pub mod classification_flags {
 
-                /// T.B.C.
+                /// Reserved flag for handling runs of path separators.
                 pub const IGNORE_SLASH_RUNS : i32 = 0x00000001;
-                /// T.B.C.
+                /// Reserved flag for handling invalid path characters.
                 pub const IGNORE_INVALID_CHARS : i32 = 0x00000002;
-                /// T.B.C.
+                /// Flag associated with tilde-home classification.
                 pub const RECOGNISE_TILDE_HOME : i32 = 0x00000004;
-                /// T.B.C.
+                /// Reserved flag for handling invalid characters in long
+                /// paths.
                 pub const IGNORE_INVALID_CHARS_IN_LONG_PATH : i32 = 0x00000002;
             }
 
@@ -472,6 +489,7 @@ pub mod libpath {
             }
 
 
+            #[allow(clippy::collapsible_if)]
             pub fn path_classify(
                 path : &str,
                 parse_flags : i32,
@@ -507,7 +525,8 @@ pub mod libpath {
 
                         cr.Directory = PoSl::new(root.len(), dir_len);
 
-                        let (num_parts, num_dir_parts) = count_directory_parts_(cr.Directory.substring_of(path), parse_flags);
+                        let (num_parts, num_dir_parts) =
+                            count_directory_parts_(cr.Directory.substring_of(path), parse_flags);
 
                         cr.NumDirectoryParts = num_parts;
                         cr.NumDotsDirectoryParts = num_dir_parts;
@@ -575,7 +594,11 @@ pub mod libpath {
             /// - `parse_flags` - flags that moderate the classification;
             ///
             /// # Returns:
-            /// `(classification : Classification, root : PositionalSlice, path_root_stripped : PositionalSlice)`
+            /// `(classification : Classification, root : PositionalSlice,
+            /// path_root_stripped : PositionalSlice)`
+            #[allow(clippy::collapsible_if)]
+            #[allow(unused_assignments)]
+            #[allow(unused_variables)]
             fn classify_root_(
                 path : &str,
                 parse_flags : i32,
@@ -672,6 +695,7 @@ pub mod libpath {
             }
 
             /// Evaluates whether a character is a path-name-separator.
+            #[allow(clippy::match_like_matches_macro)]
             fn char_is_path_name_separator_(c : char) -> bool {
                 match c {
                     '/' => true,
@@ -754,6 +778,7 @@ pub mod libpath {
             }
 
             /// Indicates whether the given character is a drive letter.
+            #[allow(clippy::match_like_matches_macro)]
             fn char_is_drive_letter_(c : char) -> bool {
                 match c {
                     'A'..='Z' => true,
@@ -770,13 +795,7 @@ pub mod libpath {
                 use super::{
                     char_is_drive_letter_,
                     char_is_path_name_separator_,
-                    classification_flags,
-                    classify_root_,
-                    count_directory_parts_,
-                    Classification,
                 };
-
-                use fastparse::fastparse::types::PositionalSlice as PoSl;
 
 
                 #[test]
@@ -857,7 +876,7 @@ mod tests {
 
         #[test]
         fn TEST_path_classify_WITH_EMPTY_INPUT() {
-            let flag_max = 0 | IGNORE_SLASH_RUNS | IGNORE_INVALID_CHARS | RECOGNISE_TILDE_HOME;
+            let flag_max = IGNORE_SLASH_RUNS | IGNORE_INVALID_CHARS | RECOGNISE_TILDE_HOME;
 
             for flags in 0..=flag_max {
                 let (cl, cr) = path_classify("", flags);
@@ -1388,7 +1407,7 @@ mod tests {
         #[test]
         fn TEST_path_classify_WITH_EMPTY_INPUT() {
             let flag_max =
-                0 | IGNORE_SLASH_RUNS | IGNORE_INVALID_CHARS | RECOGNISE_TILDE_HOME | IGNORE_INVALID_CHARS_IN_LONG_PATH;
+                IGNORE_SLASH_RUNS | IGNORE_INVALID_CHARS | RECOGNISE_TILDE_HOME | IGNORE_INVALID_CHARS_IN_LONG_PATH;
 
             for flags in 0..=flag_max {
                 let (cl, cr) = path_classify("", flags);
