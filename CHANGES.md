@@ -1,4 +1,4 @@
-# libpath.Rust - CHANGES <!-- omit in toc -->
+# libpath.Rust - Changes <!-- omit in toc -->
 
 
 ## 0.0.2 - 16th March 2025

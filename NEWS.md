@@ -1,4 +1,4 @@
-# libpath.Rust - NEWS <!-- omit in toc -->
+# libpath.Rust - News <!-- omit in toc -->
 
 | Date                  | News Item                                 |
 | --------------------- | ----------------------------------------- |
