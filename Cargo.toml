@@ -7,13 +7,33 @@
 authors = [
   "Matt Wilson <matthew@synesis.com.au>",
 ]
-description = "Path parsing library (for Rust)"
+categories = [
+  "filesystem",
+  "parsing",
+]
+description = "Path parsing library for Rust"
+documentation = "https://docs.rs/libpath"
 edition = "2021"
-repository = "https://github.com/synesissoftware/libpath.Rust"
+exclude = [
+  ".cargo",
+  ".github",
+  ".vimrc",
+  ".vscode",
+  "scripts",
+  "target",
+]
+homepage = "https://github.com/synesissoftware/libpath.Rust"
+keywords = [
+  "filesystem",
+  "parsing",
+  "path",
+]
 license = "BSD-3-Clause"
 name = "libpath"
 readme = "README.md"
-version = "0.0.2"
+repository = "https://github.com/synesissoftware/libpath.Rust"
+rust-version = "1.74"
+version = "0.0.3"
 
 
 # ##########################################################
@@ -53,13 +73,13 @@ null-feature = []
 
 [dependencies]
 
-fastparse = { version = "~0.0", default-features = false, features = [
+fastparse = { version = "0.0.3", default-features = false, features = [
 ] }
 
 
 [dev-dependencies]
 
-test_help-rs = { version = "0.1" }
+test_help-rs = { version = "0.2.1" }
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
