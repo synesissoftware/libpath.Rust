@@ -5,28 +5,29 @@
 [package]
 
 authors = [
-  "Matt Wilson <matthew@synesis.com.au>",
+	"Matt Wilson <matthew@synesis.com.au>",
 ]
 categories = [
-  "filesystem",
-  "parsing",
+	"filesystem",
+	"parsing",
 ]
-description = "Path parsing library for Rust"
+description = "Path parsing library (for Rust)"
 documentation = "https://docs.rs/libpath"
 edition = "2021"
 exclude = [
-  ".cargo",
-  ".github",
-  ".vimrc",
-  ".vscode",
-  "scripts",
-  "target",
+	".cargo",
+	".cursor",
+	".github",
+	".vimrc",
+	".vscode",
+	"scripts",
+	"target",
 ]
 homepage = "https://github.com/synesissoftware/libpath.Rust"
 keywords = [
-  "filesystem",
-  "parsing",
-  "path",
+	"filesystem",
+	"parsing",
+	"path",
 ]
 license = "BSD-3-Clause"
 name = "libpath"
@@ -59,8 +60,10 @@ default = [
 
 # General features:
 #
+# - "_NEVER_TO_BE_ENABLED" - this is a placeholder feature and must NEVER be specified;
 # - "null-feature" - a feature that has no effect (and, thus, is useful for simplifying driver scripts);
 
+_NEVER_TO_BE_ENABLED = []
 null-feature = []
 
 
@@ -71,15 +74,18 @@ null-feature = []
 # ##########################################################
 # Dependencies
 
+[build-dependencies]
+
 [dependencies]
 
 fastparse = { version = "0.0.3", default-features = false, features = [
-] }
+]}
 
 
 [dev-dependencies]
 
-test_help-rs = { version = "0.2.1" }
+test_help-rs = { version = "0.2", default-features = false, features = [
+]}
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
