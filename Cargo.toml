@@ -48,6 +48,10 @@ path = "src/lib.rs"
 name = "libver"
 path = "test/scratch/libver/main.rs"
 
+[[example]]
+name = "versions"
+path = "examples/versions/main.rs"
+
 
 # ##########################################################
 # Features
