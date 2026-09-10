@@ -5,6 +5,7 @@
 
 - [Functional improvements](#functional-improvements)
 - [Performance improvements](#performance-improvements)
+- [Packaging improvements](#packaging-improvements)
 
 
 ## Functional improvements
@@ -30,7 +31,7 @@ the boilerplate baseline.
   * [ ] Support (sadly) full flexibility in Windows paths for mixed use of `'\'` and `'/'` (though not for runs);
   * [ ] Detection of trailing space as invalid character(s);
 * [ ] Rename `ClassificationResult` to `PathDescriptor`;
-* [x] Rename `ClassificationResult#Entry` to `#EntryName`;
+* [x] ~~~Rename `ClassificationResult#Entry` to `#EntryName`~~~ - ✅;
 * [ ] Remove `ClassificationResult#FirstInvalid` and use in function calls;
 * [ ] Correct handling of entry-names with trailing `'.'` character(s);
 * [ ] Add many and varied test cases with invalid characters / names;
@@ -43,6 +44,11 @@ the boilerplate baseline.
 
 
 ## Performance improvements
+
+* \<none>
+
+
+## Packaging improvements
 
 * \<none>
 
