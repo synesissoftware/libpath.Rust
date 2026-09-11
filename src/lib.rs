@@ -4,7 +4,7 @@
  * Purpose: Primary implementation file for libpath.Rust.
  *
  * Created: 16th April 2021
- * Updated: 31st August 2026
+ * Updated: 11th September 2026
  *
  * Home:    http://stlsoft.org/
  *
