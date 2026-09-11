@@ -41,6 +41,7 @@ the boilerplate baseline.
 * [ ] Implement `RECOGNISE_TILDE_HOME`;
 * [ ] Implement `IGNORE_INVALID_CHARS_IN_LONG_PATH`;
 * [ ] Implement path normalisation (Unix and Windows) : `to_os_normal()`, `to_asbtract_normal()`;
+* [ ] Remove the redundant `libpath::libpath::` namespace;
 
 
 ## Performance improvements
