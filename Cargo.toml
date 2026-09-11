@@ -34,7 +34,7 @@ name = "libpath"
 readme = "README.md"
 repository = "https://github.com/synesissoftware/libpath.Rust"
 rust-version = "1.74"
-version = "0.0.3"
+version = "0.0.4"
 
 
 # ##########################################################
