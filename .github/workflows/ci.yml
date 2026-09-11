@@ -48,9 +48,12 @@ jobs:
         run: RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --locked
 
       - name: Install pinned nightly rustfmt
-        run: rustup toolchain install nightly-2026-08-08 --profile minimal --component rustfmt
+        run: rustup toolchain install nightly-2026-09-10 --profile minimal --component rustfmt
 
       - name: rustfmt
+        env:
+          RUSTFMT_TOOLCHAIN: nightly-2026-09-10
+          RUSTUP_TOOLCHAIN: nightly-2026-09-10
         run: ./scripts/fmt --check
 
       - name: DOC_76 checker
@@ -62,11 +65,27 @@ jobs:
       - name: DERIVE_LAYOUT checker
         run: python3 scripts/check_derives.py
 
+      - name: cargo build (examples)
+        run: cargo build --examples --locked
+
       - name: cargo build (libver)
         run: cargo build --bin libver --locked
 
       - name: cargo publish (dry run)
         run: cargo publish --dry-run --locked
+
+  msrv:
+    name: MSRV (1.74)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@1.74.0
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: cargo check (library)
+        run: cargo check --lib --locked
 
   path-semantics:
     name: Path semantics (${{ matrix.os }})
@@ -85,20 +104,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: cargo test (Unix path semantics)
-        run: cargo test --lib --locked tests::unix::
+        run: 'cargo test --lib --locked tests::unix::'
 
       - name: cargo test (Windows path semantics)
-        run: cargo test --lib --locked tests::windows::
-
-  msrv:
-    name: MSRV (1.74)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@1.74.0
-
-      - uses: Swatinem/rust-cache@v2
-
-      - name: cargo check (library)
-        run: cargo check --lib --locked
+        run: 'cargo test --lib --locked tests::windows::'
